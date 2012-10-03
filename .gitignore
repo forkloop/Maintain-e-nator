@@ -13,7 +13,3 @@ bin/
 gen/
 
 # Local configuration file (sdk path, etc)
-.project
-proguard-project.txt
-project.properties
-.classpath
