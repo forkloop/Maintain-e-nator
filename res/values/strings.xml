@@ -1,8 +1,15 @@
 <resources>
 
-	<string name="app_name">Maintain-e-nator</string>
-	<string name="hello_world">Hello world!</string>
-	<string name="menu_settings">Settings</string>
-	<string name="title_activity_main">MainActivity</string>
+    <string name="app_name">Maintain-e-nator</string>
+    <string name="main_heading">Maintain-e-nator</string>
+    <string name="menu_settings">Settings</string>
+    <string name="title_activity_main">MainActivity</string>
+    <string name="create_button_text">Create</string>
+    <string name="my_reports_button_text">My Reports</string>
+    <string name="settings_button_text">Settings</string>
+    <string name="view_button_text">View</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="title_activity_display_create_form">DisplayCreateFormActivity</string>
+    <string name="create_form_heading">Create a New Report</string>
 
 </resources>
