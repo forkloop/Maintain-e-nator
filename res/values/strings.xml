@@ -11,5 +11,10 @@
     <string name="hello_world">Hello world!</string>
     <string name="title_activity_display_create_form">DisplayCreateFormActivity</string>
     <string name="create_form_heading">Create a New Report</string>
+    <string name="create_form_title">Title:</string>
+    <string name="create_form_location_description">Location:</string>
+    <string name="create_form_description">Description:</string>
+    <string name="submit_create_form_button">Submit</string>
+    
 
 </resources>

@@ -1,14 +1,89 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent" 
+    android:orientation="vertical"
+    android:background="#000">
 
     <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/create_form_heading"
+        android:textColor="#ccc"
+        />
+    
+    <LinearLayout
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content" 
+	    android:orientation="horizontal"
+        >
+	    <TextView
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:text="@string/create_form_title"
+	        android:textColor="#ccc"
+	        />
+	    
+	    <EditText
+	        android:id="@+id/report_title"
+	     	android:layout_weight="1"
+	     	android:layout_height="wrap_content"
+	     	android:layout_width="0dp"
+	     	android:inputType="text"
+	    	android:background="#fff"
+	     	>
+	    </EditText>
+    </LinearLayout>
+    <LinearLayout
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content" 
+	    android:orientation="horizontal"
+        >
+	    <TextView
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:text="@string/create_form_location_description"
+	        android:textColor="#ccc"
+	        />
+	    
+	    <EditText
+	        android:id="@+id/report_location_description"
+	     	android:layout_weight="1"
+	     	android:layout_height="wrap_content"
+	     	android:layout_width="0dp"
+	     	android:inputType="text"
+	    	android:background="#fff"
+	     	>
+	    </EditText>
+    </LinearLayout>
+    
+    <LinearLayout
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content" 
+	    android:orientation="horizontal"
+        >
+	    <TextView
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:text="@string/create_form_description"
+	        android:textColor="#ccc"
+	        />
+	    
+	    <EditText
+	        android:id="@+id/report_description"
+	     	android:layout_weight="1"
+	     	android:layout_height="wrap_content"
+	     	android:layout_width="0dp"
+	     	android:inputType="text"
+	    	android:background="#fff"
+	     	>
+	    </EditText>
+    </LinearLayout>
+    <Button 
+        android:id="@+id/submit_create_form"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:text="@string/create_form_heading"
-        tools:context=".DisplayCreateFormActivity" />
+        android:text="@string/submit_create_form_button"
+        ></Button>
 
-</RelativeLayout>
+</LinearLayout>
