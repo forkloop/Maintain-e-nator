@@ -1,8 +1,21 @@
 <resources>
 
-	<string name="app_name">Maintain-e-nator</string>
-	<string name="hello_world">Hello world!</string>
-	<string name="menu_settings">Settings</string>
-	<string name="title_activity_main">MainActivity</string>
-
+    <string name="app_name">Maintainenator</string>
+    <string name="menu_settings">Settings</string>
+    <string name="title_activity_main">DisplayCreateFormActivity</string>
+    <string name="description">What is broken</string>
+    <string name="address">Address</string>
+    <string name="latitude">Latitude</string>
+    <string name="longitude">Longitude</string>
+    <string name="submit">Submit</string>
+    <string name="clip">Clip</string>
+    <string name="photo">Photo</string>
+    <string name="video">Video</string>
+    <string name="default_latitude">0.0</string>
+    <string name="default_longitude">0.0</string>
+    <string name="post_url">http://maintain-e-nator.herokuapp.com/api/v1/trackings/</string>
+    <string name="local_url">http://maintain-e-nator.herokuapp.com/api/v1/trackings/</string>
+    <string name="google_map_url">http://maps.googleapis.com/maps/api/geocode/json?latlng=</string>
+    <string name="json_address_tag">formatted_address</string>
+    <string name="json_array_tag">results</string>
 </resources>
