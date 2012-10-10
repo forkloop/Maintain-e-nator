@@ -18,7 +18,7 @@
     <string name="json_array_tag">results</string>
 
     <string name="main_heading">Maintain-e-nator</string>
-    <string name="title_activity_main">MainActivity</string>
+    <string name="title_activity_main">Maintainenator</string>
     <string name="create_button_text">Create</string>
     <string name="my_reports_button_text">My Reports</string>
     <string name="settings_button_text">Settings</string>
