@@ -35,19 +35,19 @@
         android:hint="@string/address"
         android:layout_marginTop="10dp"
         android:layout_marginBottom="20dp"
-        android:paddingTop="10dp" />
+        android:paddingTop="10dp"
+        />
 
     <LinearLayout
         android:orientation="horizontal"
         android:layout_height="wrap_content"
-        android:layout_width="match_parent"
-        >
+        android:layout_width="match_parent">
         <TextView
             android:layout_height="wrap_content"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:text="@string/latitude"
-        />
+            />
         <TextView
             android:layout_height="wrap_content"
             android:layout_width="0dp"
@@ -59,15 +59,14 @@
     <LinearLayout
         android:orientation="horizontal"
         android:layout_height="wrap_content"
-        android:layout_width="match_parent"
-        >
+        android:layout_width="match_parent">
         <TextView
             android:id="@+id/latitude"
             android:text="@string/default_latitude"
             android:layout_height="wrap_content"
             android:layout_width="0dp"
             android:layout_weight="1"
-        />
+            />
         <TextView
             android:id="@+id/longitude"
             android:text="@string/default_longitude"
@@ -83,5 +82,5 @@
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
         android:layout_marginTop="20dp"
-    />
+        />
 </LinearLayout>
