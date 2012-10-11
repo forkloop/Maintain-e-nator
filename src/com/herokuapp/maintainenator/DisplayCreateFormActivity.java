@@ -195,7 +195,7 @@ public class DisplayCreateFormActivity extends Activity implements LocationListe
         latView.setText(String.format("%.5f", location.getLatitude()));
         longView.setText(String.format("%.5f", location.getLongitude()));
 //        geoView.setText("Lat: " + String.format("%.2f", location.getLatitude()) + ", Long: " + String.format("%.2f", location.getLongitude()));
-        if (location.getLatitude() != cachedGPSLocation.getLatitude() || location.getLongitude() != cachedGPSLocation.getLongitude()) {
+        if (cachedGPSLocation == null || location.getLatitude() != cachedGPSLocation.getLatitude() || location.getLongitude() != cachedGPSLocation.getLongitude()) {
             new ReverseGeoTask().execute(new Location[] {location});
         }
     }
@@ -244,7 +244,7 @@ public class DisplayCreateFormActivity extends Activity implements LocationListe
 
         @Override
         protected void onPostExecute(String result) {
-            if (!result.equals(cachedAddress)) {
+            if (result != null && !result.equals(cachedAddress)) {
                 cachedAddress = result;
                 addressView.setText(result);
             }
@@ -273,7 +273,7 @@ public class DisplayCreateFormActivity extends Activity implements LocationListe
                 HttpURLConnection urlConnection = null;
                 URL url = null;
                 try {
-                    url = new URL(getString(R.string.google_map_url ) + location.getLatitude() + "," + location.getLongitude() + "&sensor=true");
+                    url = new URL(getString(R.string.google_map_url) + location.getLatitude() + "," + location.getLongitude() + "&sensor=true");
                     Log.d(getClass().getSimpleName(), "Requesting " + url.toString());
                 } catch (MalformedURLException mue) {
                     Log.e(getClass().getSimpleName(), mue.getMessage());
