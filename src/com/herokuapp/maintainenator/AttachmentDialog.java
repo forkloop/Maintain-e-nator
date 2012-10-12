@@ -1,19 +1,35 @@
 package com.herokuapp.maintainenator;
 
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import android.app.DialogFragment;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
 
 public class AttachmentDialog extends DialogFragment implements OnItemClickListener {
 
     private static final String TITLE = "Attachment";
-    private String[] attachmentList = {"Photo", "Video"};
+    private String[] attachmentList = {"Camera", "Photo Albums", "Cancel"};
+    private static final String STORAGEDIR = Environment.getExternalStorageDirectory() + File.separator + Environment.DIRECTORY_PICTURES + File.separator;
+    private String mCurrentPhotoPath;
+    private static final int CAMERA_REQUEST = 1;
+    private ImageView imageView;
 
     public AttachmentDialog() {
     }
@@ -30,12 +46,65 @@ public class AttachmentDialog extends DialogFragment implements OnItemClickListe
         listView.setAdapter(adapter);
 
         listView.setOnItemClickListener(this);
+        imageView = (ImageView) ((DisplayCreateFormActivity) getActivity()).findViewById(R.id.imageView);
         return view;
     }
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        ((DisplayCreateFormActivity) getActivity()).toast("Clicked " + attachmentList[position]);
-        this.dismiss();
+        if(position == 0) {
+            this.createImageFormat();
+            this.takePicture();
+        }
+        if(position == 2)
+            this.dismiss();
+    }
+    
+    private void createImageFormat() {
+        SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
+        Date date = new Date();
+        String imageName = format.format(date);
+        mCurrentPhotoPath = STORAGEDIR + imageName + ".jpg";
+    }
+    
+    // Take a Photo with the Camera App and save it in /Pictures
+    private void takePicture() {
+        Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+        File out = new File(mCurrentPhotoPath);
+        Uri uri = Uri.fromFile(out);
+        cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
+        Log.d(getClass().getSimpleName(), "Save image file to " + uri.toString());
+        startActivityForResult(cameraIntent, CAMERA_REQUEST);
+    }
+    
+    // Receiving camera intent result
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.d(getClass().getSimpleName(), "requst code " + requestCode + " resultCode " + resultCode);
+        if (requestCode == CAMERA_REQUEST && resultCode == DisplayCreateFormActivity.RESULT_OK) {
+            // Display the picture
+            Bitmap bmp = BitmapFactory.decodeFile(mCurrentPhotoPath);
+            Bitmap photo = Bitmap.createScaledBitmap(bmp, 360, 270, true);
+            Matrix matrix = new Matrix();
+            matrix.postRotate(90);
+            Bitmap rotatedBitmap = Bitmap.createBitmap(photo, 0, 0, photo.getWidth(), photo.getHeight(), matrix, true);
+            imageView.setImageBitmap(rotatedBitmap);
+            Log.d(getClass().getSimpleName(), "Add the picture in the imageview");
+            // Add the Photo to a Gallery
+            this.galleryAddPic();
+            Log.d(getClass().getSimpleName(), "Add the picture to the gallery");
+            this.dismiss();
+        } else {
+            Log.d(getClass().getSimpleName(), "Result code was " + resultCode);
+        }
+    }
+    
+    // Invoke the system's media scanner to add the photo to the Media Provider's database
+    private void galleryAddPic() {
+        Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+        File f = new File(mCurrentPhotoPath);
+        Uri contentUri = Uri.fromFile(f);
+        mediaScanIntent.setData(contentUri);
+        ((DisplayCreateFormActivity) getActivity()).sendBroadcast(mediaScanIntent);
     }
 }
