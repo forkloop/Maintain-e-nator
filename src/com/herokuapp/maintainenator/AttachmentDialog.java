@@ -3,8 +3,10 @@ package com.herokuapp.maintainenator;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
 import android.app.DialogFragment;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
@@ -29,6 +31,7 @@ public class AttachmentDialog extends DialogFragment implements OnItemClickListe
     private static final String STORAGEDIR = Environment.getExternalStorageDirectory() + File.separator + Environment.DIRECTORY_PICTURES + File.separator;
     private String mCurrentPhotoPath;
     private static final int CAMERA_REQUEST = 1;
+    private static final int ABLUM_REQUEST = 2;
     private ImageView imageView;
 
     public AttachmentDialog() {
@@ -56,7 +59,10 @@ public class AttachmentDialog extends DialogFragment implements OnItemClickListe
             this.createImageFormat();
             this.takePicture();
         }
-        if(position == 2)
+        else if(position == 1) {
+            this.choosePicture();
+        }
+        else if(position == 2)
             this.dismiss();
     }
     
@@ -67,6 +73,13 @@ public class AttachmentDialog extends DialogFragment implements OnItemClickListe
         mCurrentPhotoPath = STORAGEDIR + imageName + ".jpg";
     }
     
+    // Choose a photo from gallery
+    private void choosePicture() {
+        Intent ablumIntent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        Log.d(getClass().getSimpleName(), "Choose picture from ablum");
+        startActivityForResult(ablumIntent, ABLUM_REQUEST);
+    }
+
     // Take a Photo with the Camera App and save it in /Pictures
     private void takePicture() {
         Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
@@ -82,23 +95,45 @@ public class AttachmentDialog extends DialogFragment implements OnItemClickListe
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         Log.d(getClass().getSimpleName(), "requst code " + requestCode + " resultCode " + resultCode);
         if (requestCode == CAMERA_REQUEST && resultCode == DisplayCreateFormActivity.RESULT_OK) {
+            Log.d(getClass().getSimpleName(), "picture from " + mCurrentPhotoPath);
             // Display the picture
-            Bitmap bmp = BitmapFactory.decodeFile(mCurrentPhotoPath);
-            Bitmap photo = Bitmap.createScaledBitmap(bmp, 360, 270, true);
-            Matrix matrix = new Matrix();
-            matrix.postRotate(90);
-            Bitmap rotatedBitmap = Bitmap.createBitmap(photo, 0, 0, photo.getWidth(), photo.getHeight(), matrix, true);
-            imageView.setImageBitmap(rotatedBitmap);
-            Log.d(getClass().getSimpleName(), "Add the picture in the imageview");
-            // Add the Photo to a Gallery
+            this.displayPicture(mCurrentPhotoPath);
             this.galleryAddPic();
-            Log.d(getClass().getSimpleName(), "Add the picture to the gallery");
+            Log.d(getClass().getSimpleName(), "Camera - Display the picture in the imageview");
             this.dismiss();
+        } else if(requestCode == ABLUM_REQUEST && resultCode == DisplayCreateFormActivity.RESULT_OK) {
+            // Display the picture from gallery
+            Uri photoUri = data.getData();
+            if (photoUri != null) {
+                Log.d(getClass().getSimpleName(), "picture from " + photoUri);
+                try {
+                    String[] filePathColumn = { MediaStore.Images.Media.DATA };
+                    Cursor cursor = ((DisplayCreateFormActivity) getActivity()).getContentResolver().query(photoUri, filePathColumn, null, null, null);
+                    cursor.moveToFirst();
+                    int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+                    String filePath = cursor.getString(columnIndex);
+                    cursor.close();
+                    this.displayPicture(filePath);
+                    Log.d(getClass().getSimpleName(), "Gallery - Display the picture in the imageview");
+                    this.dismiss();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
         } else {
             Log.d(getClass().getSimpleName(), "Result code was " + resultCode);
         }
     }
     
+    private void displayPicture(String fileName) {
+        Bitmap bmp = BitmapFactory.decodeFile(fileName);
+        Bitmap photo = Bitmap.createScaledBitmap(bmp, 360, 270, true);
+        Matrix matrix = new Matrix();
+        matrix.postRotate(90);
+        Bitmap rotatedBitmap = Bitmap.createBitmap(photo, 0, 0, photo.getWidth(), photo.getHeight(), matrix, true);
+        imageView.setImageBitmap(rotatedBitmap);
+    }
+
     // Invoke the system's media scanner to add the photo to the Media Provider's database
     private void galleryAddPic() {
         Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
