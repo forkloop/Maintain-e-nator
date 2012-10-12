@@ -8,79 +8,82 @@
 
     <TextView
         android:id="@+id/bssid"
-        android:layout_height="wrap_content"
         android:layout_width="match_parent"
-        android:background="#19AD23"
-    />
+        android:layout_height="wrap_content"
+        android:background="#19AD23" />
 
     <TextView
         android:id="@+id/geo"
-        android:layout_height="wrap_content"
         android:layout_width="match_parent"
-        android:background="#FF0000"
-    />
+        android:layout_height="wrap_content"
+        android:background="#FF0000" />
 
     <EditText
         android:id="@+id/description"
-        android:layout_height="wrap_content"
         android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
-        android:hint="@string/description"
-        />
+        android:hint="@string/description" />
 
     <EditText
         android:id="@+id/address"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/address"
-        android:layout_marginTop="10dp"
         android:layout_marginBottom="20dp"
-        android:paddingTop="10dp"
-        />
+        android:layout_marginTop="10dp"
+        android:hint="@string/address"
+        android:paddingTop="10dp" />
 
     <LinearLayout
-        android:orientation="horizontal"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_width="match_parent">
+        android:orientation="horizontal" >
+
         <TextView
-            android:layout_height="wrap_content"
             android:layout_width="0dp"
+            android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="@string/latitude"
-            />
+            android:text="@string/latitude" />
+
         <TextView
-            android:layout_height="wrap_content"
             android:layout_width="0dp"
+            android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="@string/longitude"
-            />
+            android:text="@string/longitude" />
     </LinearLayout>
 
     <LinearLayout
-        android:orientation="horizontal"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_width="match_parent">
+        android:orientation="horizontal" >
+
         <TextView
             android:id="@+id/latitude"
-            android:text="@string/default_latitude"
-            android:layout_height="wrap_content"
             android:layout_width="0dp"
+            android:layout_height="wrap_content"
             android:layout_weight="1"
-            />
+            android:text="@string/default_latitude" />
+
         <TextView
             android:id="@+id/longitude"
-            android:text="@string/default_longitude"
-            android:layout_height="wrap_content"
             android:layout_width="0dp"
+            android:layout_height="wrap_content"
             android:layout_weight="1"
-            />
+            android:text="@string/default_longitude" />
     </LinearLayout>
 
     <Button
         android:id="@+id/submit"
-        android:text="@string/submit"
-        android:layout_height="wrap_content"
         android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
-        />
+        android:text="@string/submit" />
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="3.68"
+        android:src="@android:drawable/picture_frame" />
+
 </LinearLayout>
