@@ -62,17 +62,18 @@ public class AttachmentDialog extends DialogFragment implements OnItemClickListe
         else if(position == 1) {
             this.choosePicture();
         }
-        else if(position == 2)
+        else if(position == 2) {
             this.dismiss();
+        }
     }
-    
+
     private void createImageFormat() {
         SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
         Date date = new Date();
         String imageName = format.format(date);
         mCurrentPhotoPath = STORAGEDIR + imageName + ".jpg";
     }
-    
+
     // Choose a photo from gallery
     private void choosePicture() {
         Intent ablumIntent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
@@ -89,7 +90,7 @@ public class AttachmentDialog extends DialogFragment implements OnItemClickListe
         Log.d(getClass().getSimpleName(), "Save image file to " + uri.toString());
         startActivityForResult(cameraIntent, CAMERA_REQUEST);
     }
-    
+
     // Receiving camera intent result
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -124,7 +125,7 @@ public class AttachmentDialog extends DialogFragment implements OnItemClickListe
             Log.d(getClass().getSimpleName(), "Result code was " + resultCode);
         }
     }
-    
+
     private void displayPicture(String fileName) {
         Bitmap bmp = BitmapFactory.decodeFile(fileName);
         Bitmap photo = Bitmap.createScaledBitmap(bmp, 360, 270, true);
