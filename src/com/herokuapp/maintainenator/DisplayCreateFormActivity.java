@@ -15,12 +15,14 @@ import java.util.Arrays;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.FragmentManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -30,6 +32,7 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -57,10 +60,17 @@ public class DisplayCreateFormActivity extends Activity implements LocationListe
     private Location cachedGPSLocation;
     private Location cachedNetworkLocation;
 
+    private boolean localDev;
+    private String username;
+    private String password;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_display_create_form);
+
+        ActionBar actionBar = getActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
 
         bssidView = (TextView) findViewById(R.id.bssid);
         latView = (TextView) findViewById(R.id.latitude);
@@ -78,11 +88,12 @@ public class DisplayCreateFormActivity extends Activity implements LocationListe
         intentFilter.addAction(WifiManager.RSSI_CHANGED_ACTION);
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
-        Authenticator.setDefault(new Authenticator() {
-            protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication("forkloop", "494718489".toCharArray());
-              }
-        });
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        localDev = sharedPreferences.getBoolean("dev_mode", true);
+        Log.d(getClass().getSimpleName(), "local_dev?: " + localDev);
+        username = sharedPreferences.getString("username", "");
+        Log.d(getClass().getSimpleName(), "username: " + username);
+        password = sharedPreferences.getString("password", "");
     }
 
     @Override
@@ -155,6 +166,11 @@ public class DisplayCreateFormActivity extends Activity implements LocationListe
                 AttachmentDialog dialog = new AttachmentDialog();
                 dialog.show(fm, "fragment");
                 return true;
+            case android.R.id.home:
+                Intent intent = new Intent(this, MainActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
+                return true;
             default:
                     return super.onOptionsItemSelected(item);
         }
@@ -194,7 +210,6 @@ public class DisplayCreateFormActivity extends Activity implements LocationListe
         Log.d(getClass().getSimpleName(), "" + location);
         latView.setText(String.format("%.5f", location.getLatitude()));
         longView.setText(String.format("%.5f", location.getLongitude()));
-//        geoView.setText("Lat: " + String.format("%.2f", location.getLatitude()) + ", Long: " + String.format("%.2f", location.getLongitude()));
         if (cachedGPSLocation == null || location.getLatitude() != cachedGPSLocation.getLatitude() || location.getLongitude() != cachedGPSLocation.getLongitude()) {
             new ReverseGeoTask().execute(new Location[] {location});
         }

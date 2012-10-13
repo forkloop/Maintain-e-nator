@@ -1,17 +1,31 @@
 package com.herokuapp.maintainenator;
 
 import android.app.Activity;
+import android.view.View.OnClickListener;
 import android.content.Intent;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.View;
+import android.widget.Button;
 
-public class MainActivity extends Activity {
+public class MainActivity extends Activity implements OnClickListener{
+
+    private Button settingsButton;
+    private Button createButton;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        settingsButton = (Button) findViewById(R.id.settings_button);
+        settingsButton.setOnClickListener(this);
+
+        createButton = (Button) findViewById(R.id.create_button);
+        createButton.setOnClickListener(this);
+
+        PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
     }
 
     @Override
@@ -20,8 +34,15 @@ public class MainActivity extends Activity {
         return true;
     }
 
-    public void displayCreateForm(View view) {
-    	Intent intent = new Intent(this, DisplayCreateFormActivity.class);
-    	startActivity(intent);
+    @Override
+    public void onClick(View v) {
+        int viewId = v.getId();
+        if (viewId == R.id.settings_button) {
+            Intent intent = new Intent(this, SettingsActivity.class);
+            startActivity(intent);
+        } else if (viewId == R.id.create_button) {
+            Intent intent = new Intent(this, DisplayCreateFormActivity.class);
+            startActivity(intent);
+        }
     }
 }
