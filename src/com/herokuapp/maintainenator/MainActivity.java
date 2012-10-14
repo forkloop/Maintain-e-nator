@@ -1,12 +1,11 @@
 package com.herokuapp.maintainenator;
 
 import android.app.Activity;
-import android.view.View.OnClickListener;
 import android.content.Intent;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.view.Menu;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.Button;
 
 public class MainActivity extends Activity implements OnClickListener{
@@ -26,12 +25,6 @@ public class MainActivity extends Activity implements OnClickListener{
         createButton.setOnClickListener(this);
 
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.activity_main, menu);
-        return true;
     }
 
     @Override

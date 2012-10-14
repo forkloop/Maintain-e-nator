@@ -5,10 +5,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.net.Authenticator;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
-import java.net.PasswordAuthentication;
 import java.net.URL;
 import java.util.Arrays;
 
@@ -33,6 +31,7 @@ import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.util.Base64;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -100,42 +99,7 @@ public class DisplayCreateFormActivity extends Activity implements LocationListe
     public void onClick(View v) {
         if (v.getId() == R.id.submit) {
             //TODO Check input.
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    postData();
-                }
-            }).start();
-        }
-    }
-
-    private void postData() {
-        URL url = null;
-        HttpURLConnection urlConnection = null;
-        OutputStream out = null;
-        String data = generateJsonData();
-        try {
-            url = new URL(getString(R.string.local_url));
-        } catch (MalformedURLException mue) {
-            Log.e(getClass().getSimpleName(), mue.getMessage());
-            return ;
-        }
-        try {
-            urlConnection = (HttpURLConnection) url.openConnection();
-            urlConnection.setDoOutput(true);
-            urlConnection.setRequestProperty("Content-Type", "application/json");
-            urlConnection.setRequestProperty("Accept", "application/json");
-            urlConnection.connect();
-            out = urlConnection.getOutputStream();
-            out.write(data.getBytes("UTF-8"));
-            out.flush();
-            out.close();
-            Log.d(getClass().getSimpleName(), "Responding: " + urlConnection.getResponseMessage());
-        } catch (IOException ioe) {
-            Log.e(getClass().getSimpleName(), ioe.getMessage());
-            ioe.printStackTrace();
-        } finally {
-            urlConnection.disconnect();
+            new UploadTask().execute();
         }
     }
 
@@ -251,6 +215,51 @@ public class DisplayCreateFormActivity extends Activity implements LocationListe
                     WifiInfo wifiInfo = wifiManager.getConnectionInfo();
                     bssidView.setText(wifiInfo.getBSSID() + ": " + wifiInfo.getRssi());
                 }
+            }
+        }
+    }
+
+    private class UploadTask extends AsyncTask<Void, Integer, String> {
+
+        @Override
+        protected void onPostExecute(String result) {
+            Toast.makeText(getApplicationContext(), result, Toast.LENGTH_LONG).show();
+        }
+
+        @Override
+        protected String doInBackground(Void... params) {
+            URL url = null;
+            HttpURLConnection urlConnection = null;
+            OutputStream out = null;
+            String data = generateJsonData();
+            try {
+                url = new URL(getString(R.string.local_url));
+            } catch (MalformedURLException mue) {
+                Log.e(getClass().getSimpleName(), mue.getMessage());
+                return null;
+            }
+            try {
+                urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setDoOutput(true);
+                urlConnection.setRequestProperty("Content-Type", "application/json");
+                urlConnection.setRequestProperty("Accept", "application/json");
+                String credential = username + ":" + password;
+                String encodedCredential = Base64.encodeToString(credential.getBytes(), Base64.DEFAULT);
+                Log.d(getClass().getSimpleName(), "encodedCredential: " + encodedCredential);
+                urlConnection.setRequestProperty("Authorization", "Basic " + encodedCredential);
+                urlConnection.connect();
+                out = urlConnection.getOutputStream();
+                out.write(data.getBytes("UTF-8"));
+                out.flush();
+                out.close();
+                Log.d(getClass().getSimpleName(), "Response: " + urlConnection.getResponseMessage());
+                return urlConnection.getResponseMessage();
+            } catch (IOException ioe) {
+                Log.e(getClass().getSimpleName(), "Error response: " + ioe.getMessage());
+                ioe.printStackTrace();
+                return ioe.getMessage();
+            } finally {
+                urlConnection.disconnect();
             }
         }
     }
