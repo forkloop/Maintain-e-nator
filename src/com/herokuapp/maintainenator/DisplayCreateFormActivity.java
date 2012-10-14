@@ -19,6 +19,7 @@ import org.json.JSONObject;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.FragmentManager;
+import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -264,8 +265,16 @@ public class DisplayCreateFormActivity extends Activity implements LocationListe
 
     private class UploadMultipartTask extends AsyncTask<Void, Integer, String> {
 
+        private ProgressDialog progressDialog;
+
+        @Override
+        protected void onPreExecute() {
+            progressDialog = ProgressDialog.show(DisplayCreateFormActivity.this, "", "");
+        }
+
         @Override
         protected void onPostExecute(String result) {
+            progressDialog.dismiss();
             Toast.makeText(getApplicationContext(), result, Toast.LENGTH_LONG).show();
         }
 
@@ -319,8 +328,16 @@ public class DisplayCreateFormActivity extends Activity implements LocationListe
 
     private class UploadJSONTask extends AsyncTask<Void, Integer, String> {
 
+        private ProgressDialog progressDialog;
+
+        @Override
+        protected void onPreExecute() {
+            progressDialog = ProgressDialog.show(DisplayCreateFormActivity.this, "", "");
+        }
+
         @Override
         protected void onPostExecute(String result) {
+            progressDialog.dismiss();
             Toast.makeText(getApplicationContext(), result, Toast.LENGTH_LONG).show();
         }
 
