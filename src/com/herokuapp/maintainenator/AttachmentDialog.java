@@ -23,6 +23,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 public class AttachmentDialog extends DialogFragment implements OnItemClickListener {
 
@@ -33,6 +34,7 @@ public class AttachmentDialog extends DialogFragment implements OnItemClickListe
     private static final int CAMERA_REQUEST = 1;
     private static final int ABLUM_REQUEST = 2;
     private ImageView imageView;
+    private TextView textView;
 
     public AttachmentDialog() {
     }
@@ -50,6 +52,7 @@ public class AttachmentDialog extends DialogFragment implements OnItemClickListe
 
         listView.setOnItemClickListener(this);
         imageView = (ImageView) ((DisplayCreateFormActivity) getActivity()).findViewById(R.id.imageView);
+        textView = (TextView) ((DisplayCreateFormActivity) getActivity()).findViewById(R.id.path);
         return view;
     }
 
@@ -133,6 +136,7 @@ public class AttachmentDialog extends DialogFragment implements OnItemClickListe
         matrix.postRotate(90);
         Bitmap rotatedBitmap = Bitmap.createBitmap(photo, 0, 0, photo.getWidth(), photo.getHeight(), matrix, true);
         imageView.setImageBitmap(rotatedBitmap);
+        textView.setText(fileName);
     }
 
     // Invoke the system's media scanner to add the photo to the Media Provider's database

@@ -1,6 +1,9 @@
 package com.herokuapp.maintainenator;
 
 import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -44,12 +47,18 @@ import android.widget.Toast;
 
 public class DisplayCreateFormActivity extends Activity implements LocationListener, OnClickListener {
 
+    private static final String END = "\r\n";
+    private static final String BOUNDARY = "1q2w3e4r5t";
+    private static final String TWO_HYPHENS = "--";
+
     private TextView bssidView;
     private TextView latView;
     private TextView longView;
     private Button submitButton;
     private EditText descriptionView;
     private EditText addressView;
+
+    private TextView pathView;
 
     private BroadcastReceiver broadcastReceiver;
     private IntentFilter intentFilter;
@@ -59,6 +68,7 @@ public class DisplayCreateFormActivity extends Activity implements LocationListe
     private Location cachedGPSLocation;
     private Location cachedNetworkLocation;
 
+    SharedPreferences sharedPreferences;
     private boolean localDev;
     private String username;
     private String password;
@@ -74,6 +84,8 @@ public class DisplayCreateFormActivity extends Activity implements LocationListe
         bssidView = (TextView) findViewById(R.id.bssid);
         latView = (TextView) findViewById(R.id.latitude);
         longView = (TextView) findViewById(R.id.longitude);
+        //TODO Remove it
+        pathView = (TextView) findViewById(R.id.path);
 
         submitButton = (Button) findViewById(R.id.submit);
         submitButton.setOnClickListener(this);
@@ -87,19 +99,29 @@ public class DisplayCreateFormActivity extends Activity implements LocationListe
         intentFilter.addAction(WifiManager.RSSI_CHANGED_ACTION);
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        localDev = sharedPreferences.getBoolean("dev_mode", true);
-        Log.d(getClass().getSimpleName(), "local_dev?: " + localDev);
-        username = sharedPreferences.getString("username", "");
-        Log.d(getClass().getSimpleName(), "username: " + username);
-        password = sharedPreferences.getString("password", "");
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+    }
+
+    private boolean checkSubmitInfo() {
+        if (!(descriptionView.getText().toString().isEmpty() || addressView.getText().toString().isEmpty())) {
+            Log.d(getClass().getSimpleName(), "qqqq" + descriptionView.getText().toString());
+            Log.d(getClass().getSimpleName(), "wwww" + addressView.getText().toString());
+            return true;
+        }
+        Toast.makeText(this, "Missing information!", Toast.LENGTH_LONG).show();
+        return false;
     }
 
     @Override
     public void onClick(View v) {
         if (v.getId() == R.id.submit) {
-            //TODO Check input.
-            new UploadTask().execute();
+            if (checkSubmitInfo()) {
+                if (pathView.getText().toString().isEmpty()) {
+                    new UploadJSONTask().execute();
+                } else {
+                    new UploadMultipartTask().execute();
+                }
+            }
         }
     }
 
@@ -143,6 +165,13 @@ public class DisplayCreateFormActivity extends Activity implements LocationListe
     @Override
     protected void onResume() {
         super.onResume();
+
+        localDev = sharedPreferences.getBoolean("dev_mode", true);
+        Log.d(getClass().getSimpleName(), "local_dev?: " + localDev);
+        username = sharedPreferences.getString("username", "");
+        Log.d(getClass().getSimpleName(), "username: " + username);
+        password = sharedPreferences.getString("password", "");
+
         registerReceiver(broadcastReceiver, intentFilter);
         Log.d(getClass().getSimpleName(), "Requesting location...");
         Log.d(getClass().getSimpleName(), Arrays.toString(locationManager.getAllProviders().toArray()));
@@ -219,7 +248,76 @@ public class DisplayCreateFormActivity extends Activity implements LocationListe
         }
     }
 
-    private class UploadTask extends AsyncTask<Void, Integer, String> {
+    private String generateMultipartForm() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(TWO_HYPHENS + BOUNDARY + END);
+        sb.append("Content-Disposition: form-data; name=\"description\"" + END + END + descriptionView.getText().toString() + END);
+        sb.append(TWO_HYPHENS + BOUNDARY + END);
+        sb.append("Content-Disposition: form-data; name=\"location\"" + END + END + addressView.getText().toString() + END);
+        sb.append(TWO_HYPHENS + BOUNDARY + END);
+        File photo = new File(pathView.getText().toString());
+        Log.d(getClass().getSimpleName(), "photo name: " + photo.getName());
+        sb.append("Content-Disposition: form-data; name=\"photo\"; filename=\"" + photo.getName() + "\"" + END);
+        sb.append("Content-type: image/jpeg" + END + END);
+        return sb.toString();
+    }
+
+    private class UploadMultipartTask extends AsyncTask<Void, Integer, String> {
+
+        @Override
+        protected void onPostExecute(String result) {
+            Toast.makeText(getApplicationContext(), result, Toast.LENGTH_LONG).show();
+        }
+
+        @Override
+        protected String doInBackground(Void... params) {
+            URL url = null;
+            HttpURLConnection urlConnection = null;
+            try {
+                if (localDev) {
+                    url = new URL(getString(R.string.local_url));
+                } else {
+                    url = new URL(getString(R.string.post_url));
+                }
+            } catch(MalformedURLException mue) {
+                mue.printStackTrace();
+                return mue.getMessage();
+            }
+            try {
+                urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setDoOutput(true);
+                urlConnection.setRequestProperty("Connection", "Keep-Alive");
+                urlConnection.setRequestProperty("Content-Type", "multipart/form-data;boundary=" + BOUNDARY);
+                String credential = username + ":" + password;
+                String encodedCredential = Base64.encodeToString(credential.getBytes(), Base64.DEFAULT);
+                Log.d(getClass().getSimpleName(), "encodedCredential: " + encodedCredential);
+                urlConnection.setRequestProperty("Authorization", "Basic " + encodedCredential);
+                String requestBodyFirstPart = generateMultipartForm();
+                urlConnection.connect();
+                DataOutputStream out = new DataOutputStream(urlConnection.getOutputStream());
+                out.writeBytes(requestBodyFirstPart);
+                FileInputStream fileInputStream = new FileInputStream(pathView.getText().toString());
+                byte[] fileBuffer = new byte[1024];
+                int length = 0;
+                while ((length = fileInputStream.read(fileBuffer)) != -1) {
+                    out.write(fileBuffer, 0, length);
+                }
+                out.writeBytes(END);
+                out.writeBytes(TWO_HYPHENS + BOUNDARY + TWO_HYPHENS);
+                fileInputStream.close();
+                out.flush();
+                out.close();
+                return urlConnection.getResponseMessage();
+            } catch (IOException ioe) {
+                ioe.printStackTrace();
+                return ioe.getMessage();
+            } finally {
+                urlConnection.disconnect();
+            }
+        }
+    }
+
+    private class UploadJSONTask extends AsyncTask<Void, Integer, String> {
 
         @Override
         protected void onPostExecute(String result) {
@@ -233,7 +331,11 @@ public class DisplayCreateFormActivity extends Activity implements LocationListe
             OutputStream out = null;
             String data = generateJsonData();
             try {
-                url = new URL(getString(R.string.local_url));
+                if (localDev) {
+                    url = new URL(getString(R.string.local_url));
+                } else {
+                    url = new URL(getString(R.string.post_url));
+                }
             } catch (MalformedURLException mue) {
                 Log.e(getClass().getSimpleName(), mue.getMessage());
                 return null;
