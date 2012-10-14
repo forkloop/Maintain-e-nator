@@ -9,7 +9,6 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -131,11 +130,8 @@ public class AttachmentDialog extends DialogFragment implements OnItemClickListe
 
     private void displayPicture(String fileName) {
         Bitmap bmp = BitmapFactory.decodeFile(fileName);
-        Bitmap photo = Bitmap.createScaledBitmap(bmp, 360, 270, true);
-        Matrix matrix = new Matrix();
-        matrix.postRotate(90);
-        Bitmap rotatedBitmap = Bitmap.createBitmap(photo, 0, 0, photo.getWidth(), photo.getHeight(), matrix, true);
-        imageView.setImageBitmap(rotatedBitmap);
+        Bitmap photo = Bitmap.createScaledBitmap(bmp, 720, 540, true);
+        imageView.setImageBitmap(photo);
         textView.setText(fileName);
     }
 
