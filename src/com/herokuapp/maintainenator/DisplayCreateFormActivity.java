@@ -11,7 +11,6 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Arrays;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -96,7 +95,6 @@ public class DisplayCreateFormActivity extends Activity implements LocationListe
 
         broadcastReceiver = new WifiBroadcastReceiver();
         intentFilter = new IntentFilter(WifiManager.WIFI_STATE_CHANGED_ACTION);
-        // Monitering signal strength changes
         intentFilter.addAction(WifiManager.RSSI_CHANGED_ACTION);
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
@@ -124,19 +122,6 @@ public class DisplayCreateFormActivity extends Activity implements LocationListe
                 }
             }
         }
-    }
-
-    private String generateJsonData() {
-        JSONObject json = new JSONObject();
-        try {
-            json.put("description", descriptionView.getText().toString());
-            json.put("location", addressView.getText().toString());
-        } catch (JSONException je) {
-            Log.e(getClass().getSimpleName(), je.toString());
-            return null;
-        }
-        Log.d(getClass().getSimpleName(), "JSON: " + json.toString());
-        return json.toString();
     }
 
     @Override
@@ -175,16 +160,14 @@ public class DisplayCreateFormActivity extends Activity implements LocationListe
 
         registerReceiver(broadcastReceiver, intentFilter);
         Log.d(getClass().getSimpleName(), "Requesting location...");
-        Log.d(getClass().getSimpleName(), Arrays.toString(locationManager.getAllProviders().toArray()));
         Log.d(getClass().getSimpleName(), "Network enabled: " + locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER));
         Log.d(getClass().getSimpleName(), "GPS enabled: " + locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER));
         locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
         cachedNetworkLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-        Log.d(getClass().getSimpleName(), "" + cachedNetworkLocation);
+        Log.d(getClass().getSimpleName(), "cachedNetworkLocation: " + cachedNetworkLocation);
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
         cachedGPSLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-        Log.d(getClass().getSimpleName(), "" + cachedGPSLocation);
-        Log.d(getClass().getSimpleName(), "Location updating...");
+        Log.d(getClass().getSimpleName(), "cachedGPSLocation: " + cachedGPSLocation);
     }
 
     @Override
@@ -201,11 +184,25 @@ public class DisplayCreateFormActivity extends Activity implements LocationListe
 
     @Override
     public void onLocationChanged(Location location) {
-        Log.d(getClass().getSimpleName(), "" + location);
-        latView.setText(String.format("%.5f", location.getLatitude()));
-        longView.setText(String.format("%.5f", location.getLongitude()));
-        if (cachedGPSLocation == null || location.getLatitude() != cachedGPSLocation.getLatitude() || location.getLongitude() != cachedGPSLocation.getLongitude()) {
-            new ReverseGeoTask().execute(new Location[] {location});
+        Log.d(getClass().getSimpleName(), "Location changed to: " + location);
+        if (location.getProvider().equals("gps")) {
+            if (cachedGPSLocation == null || Math.abs(location.getLatitude() - cachedGPSLocation.getLatitude()) >1e-5 ||
+                    Math.abs(location.getLongitude() - cachedGPSLocation.getLongitude()) > 1e-5) {
+                cachedGPSLocation = location;
+                latView.setText(String.format("%.5f", location.getLatitude()));
+                longView.setText(String.format("%.5f", location.getLongitude()));
+                new ReverseGeoTask().execute(new Location[] {location});
+            }
+        } else if (location.getProvider().equals("network")) {
+            if (cachedNetworkLocation == null || Math.abs(location.getLatitude() - cachedNetworkLocation.getLatitude()) > 1e-5 ||
+                    Math.abs(location.getLongitude() - cachedNetworkLocation.getLongitude()) > 1e-5) {
+                cachedNetworkLocation = location;
+                latView.setText(String.format("%.5f", location.getLatitude()));
+                longView.setText(String.format("%.5f", location.getLongitude()));
+                new ReverseGeoTask().execute(new Location[] {location});
+            }
+        } else {
+            Log.d(getClass().getSimpleName(), "Update from unknown location provider: " + location.getProvider());
         }
     }
 
@@ -229,14 +226,14 @@ public class DisplayCreateFormActivity extends Activity implements LocationListe
     }
 
     /**
-     * Listen for WIFI status and other intents.
+     * Listen for WiFi status and other intents.
      */
     private class WifiBroadcastReceiver extends BroadcastReceiver {
 
         @Override
         public void onReceive(Context context, Intent intent) {
 
-            Log.d(getClass().getSimpleName(), intent.getAction());
+            Log.d(getClass().getSimpleName(), "WiFi: " + intent.getAction());
             if (intent.getAction().equals(WifiManager.WIFI_STATE_CHANGED_ACTION) || intent.getAction().equals(WifiManager.RSSI_CHANGED_ACTION)) {
                 ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
                 NetworkInfo networkInfo = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
@@ -255,6 +252,12 @@ public class DisplayCreateFormActivity extends Activity implements LocationListe
         sb.append("Content-Disposition: form-data; name=\"description\"" + END + END + descriptionView.getText().toString() + END);
         sb.append(TWO_HYPHENS + BOUNDARY + END);
         sb.append("Content-Disposition: form-data; name=\"location\"" + END + END + addressView.getText().toString() + END);
+        if (!latView.getText().toString().equals(getString(R.string.default_latitude))) {
+            sb.append(TWO_HYPHENS + BOUNDARY + END);
+            sb.append("Content-Disposition: form-data; name=\"latitude\"" + END + END + latView.getText().toString() + END);
+            sb.append(TWO_HYPHENS + BOUNDARY + END);
+            sb.append("Content-Disposition: form-data; name=\"longitude\"" + END + END + longView.getText().toString() + END);
+        }
         sb.append(TWO_HYPHENS + BOUNDARY + END);
         File photo = new File(pathView.getText().toString());
         Log.d(getClass().getSimpleName(), "photo name: " + photo.getName());
@@ -326,6 +329,23 @@ public class DisplayCreateFormActivity extends Activity implements LocationListe
         }
     }
 
+    private String generateJsonData() {
+        JSONObject json = new JSONObject();
+        try {
+            json.put("description", descriptionView.getText().toString());
+            json.put("location", addressView.getText().toString());
+            if (!latView.getText().toString().equals(getString(R.string.default_latitude))) {
+                json.put("latitude", latView.getText().toString());
+                json.put("longitude", longView.getText().toString());
+            }
+        } catch (JSONException je) {
+            Log.e(getClass().getSimpleName(), je.toString());
+            return null;
+        }
+        Log.d(getClass().getSimpleName(), "JSON: " + json.toString());
+        return json.toString();
+    }
+
     private class UploadJSONTask extends AsyncTask<Void, Integer, String> {
 
         private ProgressDialog progressDialog;
@@ -355,7 +375,7 @@ public class DisplayCreateFormActivity extends Activity implements LocationListe
                 }
             } catch (MalformedURLException mue) {
                 Log.e(getClass().getSimpleName(), mue.getMessage());
-                return null;
+                return mue.getMessage();
             }
             try {
                 urlConnection = (HttpURLConnection) url.openConnection();
@@ -417,10 +437,10 @@ public class DisplayCreateFormActivity extends Activity implements LocationListe
                 URL url = null;
                 try {
                     url = new URL(getString(R.string.google_map_url) + location.getLatitude() + "," + location.getLongitude() + "&sensor=true");
-                    Log.d(getClass().getSimpleName(), "Requesting " + url.toString());
+                    Log.d(getClass().getSimpleName(), "Requesting Google Maps API: " + url.toString());
                 } catch (MalformedURLException mue) {
                     Log.e(getClass().getSimpleName(), mue.getMessage());
-                    return null;
+                    return mue.getMessage();
                 }
                 try {
                     urlConnection = (HttpURLConnection) url.openConnection();
@@ -432,12 +452,15 @@ public class DisplayCreateFormActivity extends Activity implements LocationListe
                         Log.d(getClass().getSimpleName(), "Address: " + address);
                         return address;
                     }
-                    Log.d(getClass().getSimpleName(), "Response Code: " + urlConnection.getResponseCode());
+                    Log.d(getClass().getSimpleName(), "Response: " + urlConnection.getResponseMessage());
+                    return urlConnection.getResponseMessage();
                 } catch (IOException ioe) {
                     ioe.printStackTrace();
                     Log.e(getClass().getSimpleName(), ioe.getMessage());
+                    return ioe.getMessage();
                 } catch (JSONException je) {
                     Log.e(getClass().getSimpleName(), je.getMessage());
+                    return je.getMessage();
                 } finally {
                     urlConnection.disconnect();
                 }
