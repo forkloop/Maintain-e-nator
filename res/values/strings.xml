@@ -33,4 +33,6 @@
     <string name="username_description">Username for connecting server.</string>
     <string name="password">password</string>
     <string name="password_description">Password for connecting server.</string>
+
+    <string name="login_button">Login with Google</string>
 </resources>

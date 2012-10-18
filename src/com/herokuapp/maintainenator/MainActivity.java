@@ -24,6 +24,9 @@ public class MainActivity extends Activity implements OnClickListener{
         createButton = (Button) findViewById(R.id.create_button);
         createButton.setOnClickListener(this);
 
+        // XXX for debug login activity
+        ((Button) findViewById(R.id.view_button)).setOnClickListener(this);
+
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
     }
 
@@ -36,6 +39,8 @@ public class MainActivity extends Activity implements OnClickListener{
         } else if (viewId == R.id.create_button) {
             Intent intent = new Intent(this, DisplayCreateFormActivity.class);
             startActivity(intent);
+        } else if (viewId == R.id.view_button) {
+            startActivity(new Intent(this, LoginActivity.class));
         }
     }
 }

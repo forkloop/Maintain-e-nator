@@ -48,6 +48,7 @@ import android.widget.Toast;
 public class DisplayCreateFormActivity extends Activity implements LocationListener, OnClickListener {
 
     private static final String END = "\r\n";
+    private static final long LOCATION_UPDATE_TIME = 5000L;
     private static final String BOUNDARY = "1q2w3e4r5t";
     private static final String TWO_HYPHENS = "--";
 
@@ -162,10 +163,10 @@ public class DisplayCreateFormActivity extends Activity implements LocationListe
         Log.d(getClass().getSimpleName(), "Requesting location...");
         Log.d(getClass().getSimpleName(), "Network enabled: " + locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER));
         Log.d(getClass().getSimpleName(), "GPS enabled: " + locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER));
-        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
+        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, LOCATION_UPDATE_TIME, 0, this);
         cachedNetworkLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
         Log.d(getClass().getSimpleName(), "cachedNetworkLocation: " + cachedNetworkLocation);
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, LOCATION_UPDATE_TIME, 0, this);
         cachedGPSLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
         Log.d(getClass().getSimpleName(), "cachedGPSLocation: " + cachedGPSLocation);
     }
