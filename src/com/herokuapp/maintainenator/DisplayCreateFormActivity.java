@@ -173,14 +173,14 @@ public class DisplayCreateFormActivity extends Activity implements LocationListe
 
     @Override
     protected void onPause() {
-        super.onPause();
         unregisterReceiver(broadcastReceiver);
+        super.onPause();
     }
 
     @Override
     protected void onStop() {
-        super.onStop();
         locationManager.removeUpdates(this);
+        super.onStop();
     }
 
     @Override
