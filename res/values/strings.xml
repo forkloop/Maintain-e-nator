@@ -33,4 +33,7 @@
     <string name="username_description">Username for connecting server.</string>
     <string name="password">password</string>
     <string name="password_description">Password for connecting server.</string>
+
+    <string name="indoor">Indoor</string>
+    <string name="outdoor">Outdoor</string>
 </resources>
