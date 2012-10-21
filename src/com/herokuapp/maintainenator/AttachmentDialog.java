@@ -26,7 +26,7 @@ import android.widget.TextView;
 
 public class AttachmentDialog extends DialogFragment implements OnItemClickListener {
 
-    private static final String TITLE = "Attachment";
+    private static final String TITLE = "Attach";
     private String[] attachmentList = {"Camera", "Photo Albums", "Cancel"};
     private static final String STORAGEDIR = Environment.getExternalStorageDirectory() + File.separator + Environment.DIRECTORY_PICTURES + File.separator;
     private String mCurrentPhotoPath;

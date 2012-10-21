@@ -11,6 +11,6 @@ public class OutdoorFormFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return (LinearLayout) inflater.inflate(R.layout.fragment_indoor, container, false);
+        return (LinearLayout) inflater.inflate(R.layout.fragment_outdoor_form, container, false);
     }
 }

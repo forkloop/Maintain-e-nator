@@ -77,7 +77,7 @@ public class DisplayCreateFormActivity extends Activity implements LocationListe
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_display_create_form);
+        setContentView(R.layout.fragment_outdoor_form);
 
         ActionBar actionBar = getActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);

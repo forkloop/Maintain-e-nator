@@ -36,4 +36,10 @@
 
     <string name="indoor">Indoor</string>
     <string name="outdoor">Outdoor</string>
+    <string name="location_optional">More specific location? (Optional)</string>
+    <string-array name="buildings">
+        <item>Davis Hall</item>
+        <item>Bell Hall</item>
+        <item>Capen Library</item>
+    </string-array>
 </resources>

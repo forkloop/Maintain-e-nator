@@ -9,6 +9,6 @@
         android:id="@+id/attachment_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#33B5E5"
-     ></ListView>
+        android:background="#019AD2"
+     />
 </LinearLayout>

@@ -1,7 +1,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:id="@+id/clip"
         android:title="@string/clip"
-        android:icon="@drawable/clip"
+        android:icon="@drawable/ic_action_attach"
         android:showAsAction="always"
         />
     <item android:id="@+id/menu_settings"
