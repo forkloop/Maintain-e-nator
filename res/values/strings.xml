@@ -36,10 +36,17 @@
 
     <string name="indoor">Indoor</string>
     <string name="outdoor">Outdoor</string>
+    <string name="floor">FLOOR</string>
+    <string name="room">RM</string>
     <string name="location_optional">More specific location? (Optional)</string>
     <string-array name="buildings">
         <item>Davis Hall</item>
         <item>Bell Hall</item>
         <item>Capen Library</item>
+    </string-array>
+    <string-array name="photo_action">
+        <item>Add</item>
+        <item>Replace</item>
+        <item>Delete</item>
     </string-array>
 </resources>
