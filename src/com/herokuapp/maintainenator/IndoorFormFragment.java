@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import android.app.DialogFragment;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.util.Log;
@@ -29,6 +28,8 @@ public class IndoorFormFragment extends Fragment implements OnItemSelectedListen
     private Spinner roomSpinner;
     private ImageView imageView;
 
+    private static int longClickedId;
+
     @Override
     public void onCreate (Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,7 +44,7 @@ public class IndoorFormFragment extends Fragment implements OnItemSelectedListen
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View layout = (LinearLayout) inflater.inflate(R.layout.fragment_indoor_form, container, false);
 
-        imageView = (ImageView) layout.findViewById(R.id.indoor_image_view);
+        imageView = (ImageView) layout.findViewById(R.id.indoor_image_view1);
         imageView.setOnLongClickListener(this);
         buildingSpinner = (Spinner) layout.findViewById(R.id.building_spinner);
         buildingSpinner.setOnItemSelectedListener(this);
@@ -85,9 +86,13 @@ public class IndoorFormFragment extends Fragment implements OnItemSelectedListen
 
     @Override
     public boolean onLongClick(View v) {
-        //TODO Pop out a dialog for Remove Add or Replace
-        DialogFragment photoActionDialog = new PhotoActionDialogFragment();
-        photoActionDialog.show(getFragmentManager(), "photo_action");
-        return false;
+        longClickedId = v.getId();
+        PhotoActionDialogFragment photoActionDialog = new PhotoActionDialogFragment();
+        photoActionDialog.show(getActivity().getFragmentManager(), "photo_action");
+        return true;
+    }
+
+    static int getLongClickedId() {
+        return longClickedId;
     }
 }

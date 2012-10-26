@@ -31,7 +31,7 @@ public class AttachmentDialog extends DialogFragment implements OnItemClickListe
     private static final String STORAGEDIR = Environment.getExternalStorageDirectory() + File.separator + Environment.DIRECTORY_PICTURES + File.separator;
     private String mCurrentPhotoPath;
     private static final int CAMERA_REQUEST = 1;
-    private static final int ABLUM_REQUEST = 2;
+    private static final int ALBUM_REQUEST = 2;
     private ImageView imageView;
     private TextView textView;
 
@@ -80,7 +80,7 @@ public class AttachmentDialog extends DialogFragment implements OnItemClickListe
     private void choosePicture() {
         Intent ablumIntent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         Log.d(getClass().getSimpleName(), "Choose picture from ablum");
-        startActivityForResult(ablumIntent, ABLUM_REQUEST);
+        startActivityForResult(ablumIntent, ALBUM_REQUEST);
     }
 
     // Take a Photo with the Camera App and save it in /Pictures
@@ -104,7 +104,7 @@ public class AttachmentDialog extends DialogFragment implements OnItemClickListe
             this.galleryAddPic();
             Log.d(getClass().getSimpleName(), "Camera - Display the picture in the imageview");
             this.dismiss();
-        } else if(requestCode == ABLUM_REQUEST && resultCode == DisplayCreateFormActivity.RESULT_OK) {
+        } else if(requestCode == ALBUM_REQUEST && resultCode == DisplayCreateFormActivity.RESULT_OK) {
             // Display the picture from gallery
             Uri photoUri = data.getData();
             if (photoUri != null) {

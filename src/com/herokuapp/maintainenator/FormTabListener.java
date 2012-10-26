@@ -21,7 +21,6 @@ public class FormTabListener<T extends Fragment> implements ActionBar.TabListene
 
     @Override
     public void onTabReselected(Tab tab, FragmentTransaction ft) {
-        //
     }
 
     @Override
@@ -31,6 +30,11 @@ public class FormTabListener<T extends Fragment> implements ActionBar.TabListene
         } else {
             fragment = Fragment.instantiate(activity, cls.getName());
             ft.add(android.R.id.content, fragment, tabName);
+            if (tabName.equals("indoor")) {
+                ((FormActivity) activity).setIndoorFormFragment(fragment);
+            } else if (tabName.equals("outdoor")) {
+                ((FormActivity) activity).setOutdoorFormFragment(fragment);
+            }
         }
     }
 

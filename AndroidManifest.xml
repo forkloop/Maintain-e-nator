@@ -40,7 +40,10 @@
         <activity
             android:name=".FormActivity"
             android:label="@string/local_dev"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"
+            android:exported="false" >
+            <intent-filter>
+            </intent-filter>
         </activity>
     </application>
 </manifest>

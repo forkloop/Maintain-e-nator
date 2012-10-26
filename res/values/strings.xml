@@ -45,8 +45,9 @@
         <item>Capen Library</item>
     </string-array>
     <string-array name="photo_action">
-        <item>Add</item>
-        <item>Replace</item>
+        <item>Camera</item>
+        <item>Gallery</item>
         <item>Delete</item>
     </string-array>
+    <string name="full_photo">full-size photo</string>
 </resources>
