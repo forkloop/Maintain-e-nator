@@ -50,7 +50,7 @@ public class AttachmentDialog extends DialogFragment implements OnItemClickListe
         listView.setAdapter(adapter);
 
         listView.setOnItemClickListener(this);
-        imageView = (ImageView) ((DisplayCreateFormActivity) getActivity()).findViewById(R.id.imageView);
+        imageView = (ImageView) ((DisplayCreateFormActivity) getActivity()).findViewById(R.id.outdoor_image_canvas);
         textView = (TextView) ((DisplayCreateFormActivity) getActivity()).findViewById(R.id.path);
         return view;
     }

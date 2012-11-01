@@ -83,16 +83,16 @@ public class DisplayCreateFormActivity extends Activity implements LocationListe
         actionBar.setDisplayHomeAsUpEnabled(true);
 
         bssidView = (TextView) findViewById(R.id.bssid);
-        latView = (TextView) findViewById(R.id.latitude);
-        longView = (TextView) findViewById(R.id.longitude);
+        latView = (TextView) findViewById(R.id.outdoor_latitude);
+        longView = (TextView) findViewById(R.id.outdoor_longitude);
         //TODO Remove it
         pathView = (TextView) findViewById(R.id.path);
 
-        submitButton = (Button) findViewById(R.id.submit);
+        submitButton = (Button) findViewById(R.id.outdoor_submit);
         submitButton.setOnClickListener(this);
 
-        descriptionView = (EditText) findViewById(R.id.description);
-        addressView = (EditText) findViewById(R.id.address);
+        descriptionView = (EditText) findViewById(R.id.outdoor_description);
+        addressView = (EditText) findViewById(R.id.outdoor_address);
 
         broadcastReceiver = new WifiBroadcastReceiver();
         intentFilter = new IntentFilter(WifiManager.WIFI_STATE_CHANGED_ACTION);
@@ -114,7 +114,7 @@ public class DisplayCreateFormActivity extends Activity implements LocationListe
 
     @Override
     public void onClick(View v) {
-        if (v.getId() == R.id.submit) {
+        if (v.getId() == R.id.indoor_submit) {
             if (checkSubmitInfo()) {
                 if (pathView.getText().toString().isEmpty()) {
                     new UploadJSONTask().execute();

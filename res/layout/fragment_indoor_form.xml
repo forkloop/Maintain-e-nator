@@ -3,14 +3,20 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:background="#FFFFFF"
     android:paddingLeft="16dp"
-    android:paddingRight="16dp" >
+    android:paddingRight="16dp">
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:background="#FFFFFF">
     <EditText
         android:id="@+id/indoor_description"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="2dp"
         android:hint="@string/description" />
 
     <Spinner
@@ -23,6 +29,7 @@
     <LinearLayout
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
+        android:layout_marginTop="5dp"
         android:orientation="horizontal" >
                 <TextView
                     android:text="@string/floor"
@@ -54,7 +61,7 @@
         android:id="@+id/indoor_location_optional"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="5dp"
         android:textSize="16sp"
         android:hint="@string/location_optional" />
 
@@ -113,7 +120,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" >
         <Button
-            android:id="@+id/submit"
+            android:id="@+id/indoor_submit"
             android:layout_alignParentRight="true"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -124,4 +131,5 @@
             android:text="@string/submit"
         />
     </RelativeLayout>
+    </LinearLayout>
 </LinearLayout>

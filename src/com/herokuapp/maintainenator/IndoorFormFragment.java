@@ -5,6 +5,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import android.app.Fragment;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -38,6 +40,14 @@ public class IndoorFormFragment extends Fragment implements OnItemSelectedListen
         for(int i=1; i<=HIGEST_FLOOR; i++) {
             floorArray.add(i + "F");
         }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        LocationManager locationManager = ((FormActivity) getActivity()).getLocationManager();
+        locationManager.requestSingleUpdate(LocationManager.NETWORK_PROVIDER, (LocationListener) getActivity(), null);
+        locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, (LocationListener) getActivity(), null);
     }
 
     @Override
