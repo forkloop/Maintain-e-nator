@@ -3,7 +3,7 @@
     <string name="menu_settings">Settings</string>
     <string name="description">What is broken?</string>
     <string name="picture_description">Issue picture</string>
-    <string name="address">Address</string>
+    <string name="address">Where is it?</string>
     <string name="latitude">Latitude</string>
     <string name="longitude">Longitude</string>
     <string name="submit">Submit</string>
@@ -50,4 +50,6 @@
         <item>Delete</item>
     </string-array>
     <string name="full_photo">full-size photo</string>
+    <string name="map_button">Map</string>
+    <string name="mapview">Map</string>
 </resources>

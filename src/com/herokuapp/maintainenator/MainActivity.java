@@ -36,10 +36,9 @@ public class MainActivity extends Activity implements OnClickListener{
             Intent intent = new Intent(this, SettingsActivity.class);
             startActivity(intent);
         } else if (viewId == R.id.create_button) {
-            Intent intent = new Intent(this, DisplayCreateFormActivity.class);
-            startActivity(intent);
-        } else if (viewId == R.id.view_button) {
             startActivity(new Intent(this, FormActivity.class));
+        } else if (viewId == R.id.view_button) {
+            startActivity(new Intent(this, MapViewActivity.class));
         }
     }
 }

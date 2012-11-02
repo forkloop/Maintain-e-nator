@@ -16,6 +16,10 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
+
+    <uses-library
+        android:name="com.google.android.maps" />
+
         <activity
             android:name=".MainActivity"
             android:theme="@android:style/Theme.Light.NoTitleBar" >
@@ -45,5 +49,11 @@
             <intent-filter>
             </intent-filter>
         </activity>
-    </application>
+        <activity
+            android:name=".MapViewActivity"
+            android:label="@string/mapview"
+            android:theme="@android:style/Theme.Holo.Light.Dialog.NoActionBar"
+            android:screenOrientation="portrait">
+        </activity>
+        </application>
 </manifest>

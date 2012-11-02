@@ -170,6 +170,7 @@ public class FormActivity extends Activity implements LocationListener {
         }
     }
 
+    // Called by FormTabListener
     public void setIndoorFormFragment(Fragment fragment) {
         indoorFormFragment = (IndoorFormFragment) fragment;
     }
@@ -188,15 +189,20 @@ public class FormActivity extends Activity implements LocationListener {
 
     public void displayPhoto(String photoURI) {
         Tab tab = actionBar.getSelectedTab();
+        Bitmap bmp = BitmapFactory.decodeFile(photoURI);
+        Bitmap photo = Bitmap.createScaledBitmap(bmp, 200, 140, true);
         if (tab.getTag().equals("indoor")) {
-            Bitmap bmp = BitmapFactory.decodeFile(photoURI);
-            Bitmap photo = Bitmap.createScaledBitmap(bmp, 200, 140, true);
             ImageView imageView = (ImageView) findViewById(IndoorFormFragment.getLongClickedId());
             imageView.setImageBitmap(photo);
             imageView.setOnClickListener(new PhotoClickListener(photoURI));
-            enableNextPhoto(IndoorFormFragment.getLongClickedId());
+            enableNextPhoto(true, IndoorFormFragment.getLongClickedId());
         } else {
-            //TODO outdoor
+            OutdoorFormFragment outdoorFragment = (OutdoorFormFragment) getFragmentManager().findFragmentByTag("outdoor");
+            int longClickedId = outdoorFragment.getLongClickedId();
+            ImageView imageView = (ImageView) findViewById(longClickedId);
+            imageView.setImageBitmap(photo);
+            imageView.setOnClickListener(new PhotoClickListener(photoURI));
+            enableNextPhoto(false, longClickedId);
         }
     }
 
@@ -209,21 +215,40 @@ public class FormActivity extends Activity implements LocationListener {
         }
     }
 
-    private void enableNextPhoto(int currentId) {
-        if (currentId == R.id.indoor_image_view1) {
-            ImageView iv = (ImageView) findViewById(R.id.indoor_image_view2);
-            if (!iv.isLongClickable()) {
-                iv.setOnLongClickListener(indoorFormFragment);
-                iv.setBackgroundColor(0xFF00BAFF);
-                iv.setImageResource(R.drawable.content_new_picture);
-                iv.setScaleType(ScaleType.CENTER);
+    private void enableNextPhoto(boolean isIndoor, int currentId) {
+        if (isIndoor) {
+            if (currentId == R.id.indoor_image_view1) {
+                ImageView iv = (ImageView) findViewById(R.id.indoor_image_view2);
+                if (!iv.isLongClickable()) {
+                    iv.setOnLongClickListener(indoorFormFragment);
+                    iv.setBackgroundColor(0xFF00BAFF);
+                    iv.setImageResource(R.drawable.content_new_picture);
+                    iv.setScaleType(ScaleType.CENTER);
+                }
+            } else if (currentId == R.id.indoor_image_view2) {
+                ImageView iv = (ImageView) findViewById(R.id.indoor_image_view3);
+                if (!iv.isLongClickable()) {
+                    iv.setOnLongClickListener(indoorFormFragment);
+                    iv.setImageResource(R.drawable.content_new_picture);
+                    iv.setScaleType(ScaleType.CENTER);
+                }
             }
-        } else if (currentId == R.id.indoor_image_view2) {
-            ImageView iv = (ImageView) findViewById(R.id.indoor_image_view3);
-            if (!iv.isLongClickable()) {
-                iv.setOnLongClickListener(indoorFormFragment);
-                iv.setImageResource(R.drawable.content_new_picture);
-                iv.setScaleType(ScaleType.CENTER);
+        } else {
+            if (currentId == R.id.outdoor_image_view1) {
+                ImageView iv = (ImageView) findViewById(R.id.outdoor_image_view2);
+                if (!iv.isLongClickable()) {
+                    iv.setOnLongClickListener(outdoorFormFragment);
+                    iv.setBackgroundColor(0xFF00BAFF);
+                    iv.setImageResource(R.drawable.content_new_picture);
+                    iv.setScaleType(ScaleType.CENTER);
+                }
+            } else if (currentId == R.id.outdoor_image_view2) {
+                ImageView iv = (ImageView) findViewById(R.id.outdoor_image_view3);
+                if (!iv.isLongClickable()) {
+                    iv.setOnLongClickListener(outdoorFormFragment);
+                    iv.setImageResource(R.drawable.content_new_picture);
+                    iv.setScaleType(ScaleType.CENTER);
+                }
             }
         }
     }
@@ -251,7 +276,7 @@ public class FormActivity extends Activity implements LocationListener {
         Log.d(getClass().getSimpleName(), "Location changed to: " + location);
         if (lastLocation == null || location.getAccuracy() < lastLocation.getAccuracy()) {
             lastLocation = location;
-            new ReverseGeoTask().execute(location);
+            //new ReverseGeoTask().execute(location);
         }
         /*
         if (location.getAccuracy() < MIN_ACCURACY) {

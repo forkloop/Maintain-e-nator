@@ -52,14 +52,9 @@ public class DisplayCreateFormActivity extends Activity implements LocationListe
     private static final String BOUNDARY = "1q2w3e4r5t";
     private static final String TWO_HYPHENS = "--";
 
-    private TextView bssidView;
-    private TextView latView;
-    private TextView longView;
     private Button submitButton;
     private EditText descriptionView;
     private EditText addressView;
-
-    private TextView pathView;
 
     private BroadcastReceiver broadcastReceiver;
     private IntentFilter intentFilter;
@@ -81,12 +76,6 @@ public class DisplayCreateFormActivity extends Activity implements LocationListe
 
         ActionBar actionBar = getActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
-
-        bssidView = (TextView) findViewById(R.id.bssid);
-        latView = (TextView) findViewById(R.id.outdoor_latitude);
-        longView = (TextView) findViewById(R.id.outdoor_longitude);
-        //TODO Remove it
-        pathView = (TextView) findViewById(R.id.path);
 
         submitButton = (Button) findViewById(R.id.outdoor_submit);
         submitButton.setOnClickListener(this);
@@ -116,7 +105,7 @@ public class DisplayCreateFormActivity extends Activity implements LocationListe
     public void onClick(View v) {
         if (v.getId() == R.id.indoor_submit) {
             if (checkSubmitInfo()) {
-                if (pathView.getText().toString().isEmpty()) {
+                if (true) {
                     new UploadJSONTask().execute();
                 } else {
                     new UploadMultipartTask().execute();
@@ -190,16 +179,12 @@ public class DisplayCreateFormActivity extends Activity implements LocationListe
             if (cachedGPSLocation == null || Math.abs(location.getLatitude() - cachedGPSLocation.getLatitude()) >1e-5 ||
                     Math.abs(location.getLongitude() - cachedGPSLocation.getLongitude()) > 1e-5) {
                 cachedGPSLocation = location;
-                latView.setText(String.format("%.5f", location.getLatitude()));
-                longView.setText(String.format("%.5f", location.getLongitude()));
                 new ReverseGeoTask().execute(new Location[] {location});
             }
         } else if (location.getProvider().equals("network")) {
             if (cachedNetworkLocation == null || Math.abs(location.getLatitude() - cachedNetworkLocation.getLatitude()) > 1e-5 ||
                     Math.abs(location.getLongitude() - cachedNetworkLocation.getLongitude()) > 1e-5) {
                 cachedNetworkLocation = location;
-                latView.setText(String.format("%.5f", location.getLatitude()));
-                longView.setText(String.format("%.5f", location.getLongitude()));
                 new ReverseGeoTask().execute(new Location[] {location});
             }
         } else {
@@ -241,7 +226,7 @@ public class DisplayCreateFormActivity extends Activity implements LocationListe
                 if (networkInfo.isConnected()) {
                     WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
                     WifiInfo wifiInfo = wifiManager.getConnectionInfo();
-                    bssidView.setText(wifiInfo.getBSSID() + ": " + wifiInfo.getRssi());
+                    Log.d(getClass().getSimpleName(), wifiInfo.getBSSID() + ": " + wifiInfo.getRssi());
                 }
             }
         }
@@ -253,14 +238,15 @@ public class DisplayCreateFormActivity extends Activity implements LocationListe
         sb.append("Content-Disposition: form-data; name=\"description\"" + END + END + descriptionView.getText().toString() + END);
         sb.append(TWO_HYPHENS + BOUNDARY + END);
         sb.append("Content-Disposition: form-data; name=\"location\"" + END + END + addressView.getText().toString() + END);
-        if (!latView.getText().toString().equals(getString(R.string.default_latitude))) {
+        String latString = String.format("%.5f", cachedGPSLocation.getLatitude());
+        if (!latString.equals(getString(R.string.default_latitude))) {
             sb.append(TWO_HYPHENS + BOUNDARY + END);
-            sb.append("Content-Disposition: form-data; name=\"latitude\"" + END + END + latView.getText().toString() + END);
+            sb.append("Content-Disposition: form-data; name=\"latitude\"" + END + END + latString + END);
             sb.append(TWO_HYPHENS + BOUNDARY + END);
-            sb.append("Content-Disposition: form-data; name=\"longitude\"" + END + END + longView.getText().toString() + END);
+            sb.append("Content-Disposition: form-data; name=\"longitude\"" + END + END + String.format("%.5f", cachedGPSLocation.getLongitude()) + END);
         }
         sb.append(TWO_HYPHENS + BOUNDARY + END);
-        File photo = new File(pathView.getText().toString());
+        File photo = new File("");
         Log.d(getClass().getSimpleName(), "photo name: " + photo.getName());
         sb.append("Content-Disposition: form-data; name=\"photo\"; filename=\"" + photo.getName() + "\"" + END);
         sb.append("Content-type: image/jpeg" + END + END);
@@ -309,7 +295,7 @@ public class DisplayCreateFormActivity extends Activity implements LocationListe
                 urlConnection.connect();
                 DataOutputStream out = new DataOutputStream(urlConnection.getOutputStream());
                 out.writeBytes(requestBodyFirstPart);
-                FileInputStream fileInputStream = new FileInputStream(pathView.getText().toString());
+                FileInputStream fileInputStream = new FileInputStream("");
                 byte[] fileBuffer = new byte[1024];
                 int length = 0;
                 while ((length = fileInputStream.read(fileBuffer)) != -1) {
@@ -335,9 +321,10 @@ public class DisplayCreateFormActivity extends Activity implements LocationListe
         try {
             json.put("description", descriptionView.getText().toString());
             json.put("location", addressView.getText().toString());
-            if (!latView.getText().toString().equals(getString(R.string.default_latitude))) {
-                json.put("latitude", latView.getText().toString());
-                json.put("longitude", longView.getText().toString());
+            String latString = String.format("%.5f", cachedGPSLocation.getLatitude());
+            if (!latString.equals(getString(R.string.default_latitude))) {
+                json.put("latitude", latString.toString());
+                json.put("longitude", String.format("%.5f", cachedGPSLocation.getLongitude()));
             }
         } catch (JSONException je) {
             Log.e(getClass().getSimpleName(), je.toString());

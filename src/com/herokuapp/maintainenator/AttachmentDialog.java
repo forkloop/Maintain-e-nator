@@ -33,7 +33,6 @@ public class AttachmentDialog extends DialogFragment implements OnItemClickListe
     private static final int CAMERA_REQUEST = 1;
     private static final int ALBUM_REQUEST = 2;
     private ImageView imageView;
-    private TextView textView;
 
     public AttachmentDialog() {
     }
@@ -50,8 +49,7 @@ public class AttachmentDialog extends DialogFragment implements OnItemClickListe
         listView.setAdapter(adapter);
 
         listView.setOnItemClickListener(this);
-        imageView = (ImageView) ((DisplayCreateFormActivity) getActivity()).findViewById(R.id.outdoor_image_canvas);
-        textView = (TextView) ((DisplayCreateFormActivity) getActivity()).findViewById(R.id.path);
+        imageView = (ImageView) ((DisplayCreateFormActivity) getActivity()).findViewById(R.id.outdoor_image_view1);
         return view;
     }
 
@@ -132,7 +130,6 @@ public class AttachmentDialog extends DialogFragment implements OnItemClickListe
         Bitmap bmp = BitmapFactory.decodeFile(fileName);
         Bitmap photo = Bitmap.createScaledBitmap(bmp, 720, 540, true);
         imageView.setImageBitmap(photo);
-        textView.setText(fileName);
     }
 
     // Invoke the system's media scanner to add the photo to the Media Provider's database
