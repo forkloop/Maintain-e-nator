@@ -38,7 +38,7 @@ public class MainActivity extends Activity implements OnClickListener{
         } else if (viewId == R.id.create_button) {
             startActivity(new Intent(this, FormActivity.class));
         } else if (viewId == R.id.view_button) {
-            startActivity(new Intent(this, MapViewActivity.class));
+            startActivity(new Intent(this, LoginActivity.class));
         }
     }
 }
