@@ -13,7 +13,7 @@
     <string name="default_latitude">0.0</string>
     <string name="default_longitude">0.0</string>
     <string name="post_url">http://maintain-e-nator.herokuapp.com/api/v1/trackings/</string>
-    <string name="local_url">http://192.168.2.17:8000/api/v1/trackings/</string>
+    <string name="local_url">http://192.168.2.17:5000/api/v1/trackings/</string>
     <string name="google_map_url">http://maps.googleapis.com/maps/api/geocode/json?latlng=</string>
     <string name="json_address_tag">formatted_address</string>
     <string name="json_array_tag">results</string>
@@ -38,6 +38,7 @@
     <string name="outdoor">Outdoor</string>
     <string name="floor">FLOOR</string>
     <string name="room">RM</string>
+    <string name="room_hint">101?</string>
     <string name="location_optional">More specific location? (Optional)</string>
     <string-array name="buildings">
         <item>Davis Hall</item>

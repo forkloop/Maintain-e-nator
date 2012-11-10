@@ -16,7 +16,7 @@
         android:id="@+id/indoor_description"
         android:layout_width="match_parent"
         android:layout_height="48dp"
-        android:layout_marginTop="2dp"
+        android:layout_marginTop="0dp"
         android:hint="@string/description" />
 
     <Spinner
@@ -50,8 +50,9 @@
                     android:gravity="center_vertical|center_horizontal"
                     android:textStyle="bold"
                     android:layout_weight="0.2" />
-                <Spinner
-                    android:id="@+id/room_spinner"
+                <EditText
+                    android:id="@+id/room_text"
+                    android:hint="@string/room_hint"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="0.3" />

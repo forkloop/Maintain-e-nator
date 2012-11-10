@@ -25,7 +25,7 @@
         android:layout_marginTop="30dp"
         android:layout_gravity="center_horizontal"
         android:padding="10dp"
-        android:background="#FF4444"
+        android:background="#4D90FE"
         android:textSize="18sp"
         android:textStyle="bold"
         android:textColor="#FFFFFF"

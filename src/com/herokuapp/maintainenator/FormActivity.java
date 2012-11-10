@@ -1,7 +1,9 @@
 package com.herokuapp.maintainenator;
 
 import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -15,8 +17,11 @@ import org.json.JSONObject;
 import android.app.ActionBar;
 import android.app.ActionBar.Tab;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Fragment;
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -32,6 +37,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
+import android.util.Base64;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -45,6 +51,11 @@ import android.widget.Toast;
 
 public class FormActivity extends Activity implements LocationListener {
 
+    private static final String END = "\r\n";
+    private static final String BOUNDARY = "1q2w3e4r5t";
+    private static final String TWO_HYPHENS = "--";
+
+    private static final String TAG = "FormActivity";
     private static final int CAMERA_REQUEST = 0;
     private static final int ALBUM_REQUEST = 1;
     private static final float MIN_ACCURACY = 100;
@@ -53,6 +64,7 @@ public class FormActivity extends Activity implements LocationListener {
     private ActionBar actionBar;
     private IndoorFormFragment indoorFormFragment;
     private OutdoorFormFragment outdoorFormFragment;
+    private AlertDialog photoAlertDialog;
 
     private String cachedAddress;
     private Location lastLocation;
@@ -188,14 +200,17 @@ public class FormActivity extends Activity implements LocationListener {
     }
 
     public void displayPhoto(String photoURI) {
+        Log.d(TAG, "Display photo: " + photoURI);
         Tab tab = actionBar.getSelectedTab();
         Bitmap bmp = BitmapFactory.decodeFile(photoURI);
         Bitmap photo = Bitmap.createScaledBitmap(bmp, 200, 140, true);
         if (tab.getTag().equals("indoor")) {
-            ImageView imageView = (ImageView) findViewById(IndoorFormFragment.getLongClickedId());
+            int longClickedId = IndoorFormFragment.getLongClickedId();
+            ImageView imageView = (ImageView) findViewById(longClickedId);
             imageView.setImageBitmap(photo);
             imageView.setOnClickListener(new PhotoClickListener(photoURI));
-            enableNextPhoto(true, IndoorFormFragment.getLongClickedId());
+            indoorFormFragment.setPhotoPath(longClickedId, photoURI);
+            enableNextPhoto(true, longClickedId);
         } else {
             OutdoorFormFragment outdoorFragment = (OutdoorFormFragment) getFragmentManager().findFragmentByTag("outdoor");
             int longClickedId = outdoorFragment.getLongClickedId();
@@ -417,4 +432,105 @@ public class FormActivity extends Activity implements LocationListener {
     public LocationManager getLocationManager() {
         return this.locationManager;
     }
+
+    AlertDialog buildAlertDialog() {
+        if (photoAlertDialog == null) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setMessage("Do you want to add a photo, that could be very helpful!")
+                       .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                        }
+                    })
+                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            //dialog.dismiss();
+                        }
+                    });
+            photoAlertDialog = builder.create();
+        }
+        return photoAlertDialog;
+    }
+
+    class UploadMultipartTask extends AsyncTask<String, Integer, String> {
+
+        private ProgressDialog progressDialog;
+
+        @Override
+        protected void onPreExecute() {
+            progressDialog = ProgressDialog.show(currentActivity, "", "");
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            progressDialog.dismiss();
+            Toast.makeText(getApplicationContext(), result, Toast.LENGTH_LONG).show();
+        }
+
+        @Override
+        protected String doInBackground(String... params) {
+            URL url = null;
+            HttpURLConnection urlConnection = null;
+            try {
+                if (localDev) {
+                    url = new URL(getString(R.string.local_url));
+                } else {
+                    url = new URL(getString(R.string.post_url));
+                }
+            } catch(MalformedURLException mue) {
+                mue.printStackTrace();
+                return mue.getMessage();
+            }
+            try {
+                Log.d(getClass().getSimpleName(), "url: " + url);
+                urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setDoOutput(true);
+                urlConnection.setRequestProperty("Connection", "Keep-Alive");
+                urlConnection.setRequestProperty("Content-Type", "multipart/form-data;boundary=" + BOUNDARY);
+                String credential = username + ":" + password;
+                String encodedCredential = Base64.encodeToString(credential.getBytes(), Base64.DEFAULT);
+                Log.d(getClass().getSimpleName(), "encodedCredential: " + encodedCredential);
+                urlConnection.setRequestProperty("Authorization", "Basic " + encodedCredential);
+                String requestBodyFirstPart = indoorFormFragment.generateMultipartForm();
+                urlConnection.connect();
+                DataOutputStream out = new DataOutputStream(urlConnection.getOutputStream());
+                out.writeBytes(requestBodyFirstPart);
+                Log.d(getClass().getSimpleName(), requestBodyFirstPart);
+                // photos
+                int num = 0;
+                for (int i=0; i<3; i++) {
+                    if (params[i] != null) {
+                        num++;
+                        out.writeBytes(TWO_HYPHENS + BOUNDARY + END);
+                        File photo = new File(params[i]);
+                        Log.d(getClass().getSimpleName(), "Content-Disposition: form-data; name=\"photo" + num + "\"; filename=\"" + photo.getName() + "\"" + END);
+                        out.writeBytes("Content-Disposition: form-data; name=\"photo" + num + "\"; filename=\"" + photo.getName() + "\"" + END);
+                        out.writeBytes("Content-type: image/jpeg" + END + END);
+                        FileInputStream fileInputStream = new FileInputStream(params[i]);
+                        byte[] fileBuffer = new byte[1024];
+                        int length = 0;
+                        while ((length = fileInputStream.read(fileBuffer)) != -1) {
+                            out.write(fileBuffer, 0, length);
+                        }
+                        fileInputStream.close();
+                        out.writeBytes(END);
+                    }
+                }
+                // End
+                out.writeBytes(TWO_HYPHENS + BOUNDARY + TWO_HYPHENS);
+                out.flush();
+                out.close();
+                Log.d(getClass().getSimpleName(), "Finish uploading photos...");
+                Log.d(getClass().getSimpleName(), "" + urlConnection.getResponseCode());
+                return urlConnection.getResponseMessage();
+            } catch (IOException ioe) {
+                ioe.printStackTrace();
+                return ioe.getMessage();
+            } finally {
+                urlConnection.disconnect();
+            }
+        }
+    }
+
 }
