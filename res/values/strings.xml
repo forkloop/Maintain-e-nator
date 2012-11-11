@@ -54,4 +54,6 @@
     <string name="map_button">Map</string>
     <string name="mapview">Map</string>
     <string name="login_button">Login with Google</string>
+    <string name="nothank_button">Eh, Maybe Later</string>
+    <string name="welcome">Welcome</string>
 </resources>

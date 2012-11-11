@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.app.Fragment;
+import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
@@ -21,8 +22,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.Toast;
-
-import com.herokuapp.maintainenator.FormActivity.UploadMultipartTask;
 
 public class IndoorFormFragment extends Fragment implements OnItemSelectedListener, OnLongClickListener {
 
@@ -91,8 +90,6 @@ public class IndoorFormFragment extends Fragment implements OnItemSelectedListen
             ArrayAdapter<String> floorAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item, floorArray.subList(0, FLOOR[pos]+1));
             floorAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             floorSpinner.setAdapter(floorAdapter);
-        } else if (parent.getId() == R.id.floor_spinner) {
-            roomText.requestFocus();
         }
     }
 
@@ -140,6 +137,13 @@ public class IndoorFormFragment extends Fragment implements OnItemSelectedListen
         if (!extra.isEmpty()) {
             sb.append(TWO_HYPHENS + BOUNDARY + END);
             sb.append("Content-Disposition: form-data; name=\"location\"" + END + END + extra + END);
+        }
+        Location latestLocation = ((FormActivity) getActivity()).getLatestLocation();
+        if (latestLocation != null) {
+            sb.append(TWO_HYPHENS + BOUNDARY + END);
+            sb.append("Content-Disposition: form-data; name=\"latitude\"" + END + END + latestLocation.getLatitude() + END);
+            sb.append(TWO_HYPHENS + BOUNDARY + END);
+            sb.append("Content-Disposition: form-data; name=\"longitude\"" + END + END + latestLocation.getLongitude() + END);
         }
         return sb.toString();
     }

@@ -2,6 +2,7 @@ package com.herokuapp.maintainenator;
 
 import android.app.Fragment;
 import android.content.Intent;
+import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
@@ -55,9 +56,8 @@ public class OutdoorFormFragment extends Fragment implements OnLongClickListener
     public void onResume() {
         super.onResume();
         LocationManager locationManager = ((FormActivity) getActivity()).getLocationManager();
-        Log.d(getClass().getSimpleName(), "GPS: " + locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER));
-        Log.d(getClass().getSimpleName(), "Network: " + locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER));
-        locationManager.requestSingleUpdate(LocationManager.NETWORK_PROVIDER, (LocationListener) getActivity(), null);
+        // Seems network location will suppress gps location update...
+        //locationManager.requestSingleUpdate(LocationManager.NETWORK_PROVIDER, (LocationListener) getActivity(), null);
         locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, (LocationListener) getActivity(), null);
     }
 
@@ -91,6 +91,13 @@ public class OutdoorFormFragment extends Fragment implements OnLongClickListener
         sb.append("Content-Disposition: form-data; name=\"description\"" + END + END + descriptionText.getText().toString() + END);
         sb.append(TWO_HYPHENS + BOUNDARY + END);
         sb.append("Content-Disposition: form-data; name=\"location\"" + END + END + locationText.getText().toString() + END);
+        Location latestLocation = ((FormActivity) getActivity()).getLatestLocation();
+        if (latestLocation != null) {
+            sb.append(TWO_HYPHENS + BOUNDARY + END);
+            sb.append("Content-Disposition: form-data; name=\"latitude\"" + END + END + latestLocation.getLatitude() + END);
+            sb.append(TWO_HYPHENS + BOUNDARY + END);
+            sb.append("Content-Disposition: form-data; name=\"longitude\"" + END + END + latestLocation.getLongitude() + END);
+        }
         return sb.toString();
     }
 
@@ -105,7 +112,13 @@ public class OutdoorFormFragment extends Fragment implements OnLongClickListener
     public void onClick(View v) {
         int vid = v.getId();
         if (vid == R.id.map_button) {
-            startActivity(new Intent(getActivity(), MapViewActivity.class));
+            Location latestLocation = ((FormActivity) getActivity()).getLatestLocation();
+            if (latestLocation != null) {
+                Intent intent = new Intent(getActivity(), MapViewActivity.class);
+                intent.putExtra("latitude", (int) latestLocation.getLatitude() * 1000000L);
+                intent.putExtra("longtitude", (int) latestLocation.getLongitude() * 1000000L);
+                startActivity(intent);
+            }
         } else if (vid == R.id.outdoor_submit) {
             if (checkData()) {
                 ((FormActivity) getActivity()).new UploadMultipartTask().execute(photoArray);

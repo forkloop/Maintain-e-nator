@@ -7,6 +7,7 @@ import android.preference.PreferenceManager;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.TextView;
 
 public class MainActivity extends Activity implements OnClickListener{
 
@@ -26,6 +27,14 @@ public class MainActivity extends Activity implements OnClickListener{
 
         ((Button) findViewById(R.id.view_button)).setOnClickListener(this);
 
+        TextView welcomeView = (TextView) findViewById(R.id.welcome);
+        Intent intent = getIntent();
+        if (intent != null) {
+            String name = (String) intent.getCharSequenceExtra("name");
+            if (name != null) {
+                welcomeView.setText(getString(R.string.welcome) + ", " + name);
+            }
+        }
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
     }
 

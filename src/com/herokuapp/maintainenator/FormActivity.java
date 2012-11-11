@@ -66,10 +66,7 @@ public class FormActivity extends Activity implements LocationListener {
     private OutdoorFormFragment outdoorFormFragment;
     private AlertDialog photoAlertDialog;
 
-    private String cachedAddress;
-    private Location lastLocation;
-    private Location cachedGPSLocation;
-    private Location cachedNetworkLocation;
+    private Location latestLocation;
     private LocationManager locationManager;
     private SharedPreferences sharedPreferences;
     private boolean localDev;
@@ -110,16 +107,12 @@ public class FormActivity extends Activity implements LocationListener {
             username = sharedPreferences.getString("username", "");
             Log.d(getClass().getSimpleName(), "username: " + username);
             password = sharedPreferences.getString("password", "");
-            // Location setup, stop using periodically location update
             Log.d(getClass().getSimpleName(), "Requesting location...");
             Log.d(getClass().getSimpleName(), "Network enabled: " + locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER));
             Log.d(getClass().getSimpleName(), "GPS enabled: " + locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER));
+            // STOP using periodical update
             //locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, LOCATION_UPDATE_TIME, 0, this);
-            cachedNetworkLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-            Log.d(getClass().getSimpleName(), "cachedNetworkLocation: " + cachedNetworkLocation);
             //locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, LOCATION_UPDATE_TIME, 0, this);
-            cachedGPSLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-            Log.d(getClass().getSimpleName(), "cachedGPSLocation: " + cachedGPSLocation);
         } else {
             Toast.makeText(this, "Please enable network connection.", Toast.LENGTH_LONG).show();
         }
@@ -183,11 +176,11 @@ public class FormActivity extends Activity implements LocationListener {
     }
 
     // Called by FormTabListener
-    public void setIndoorFormFragment(Fragment fragment) {
+    void setIndoorFormFragment(Fragment fragment) {
         indoorFormFragment = (IndoorFormFragment) fragment;
     }
 
-    public void setOutdoorFormFragment(Fragment fragment) {
+    void setOutdoorFormFragment(Fragment fragment) {
         outdoorFormFragment = (OutdoorFormFragment) fragment;
     }
 
@@ -287,14 +280,18 @@ public class FormActivity extends Activity implements LocationListener {
         }
     }
 
+    Location getLatestLocation() {
+        return latestLocation;
+    }
+
     /**
      */
     @Override
     public void onLocationChanged(Location location) {
         Log.d(getClass().getSimpleName(), "Location changed to: " + location);
-        if (lastLocation == null || location.getAccuracy() < lastLocation.getAccuracy()) {
-            lastLocation = location;
-            //new ReverseGeoTask().execute(location);
+        if (latestLocation == null || location.getAccuracy() < latestLocation.getAccuracy()) {
+            latestLocation = location;
+            new ReverseGeoTask().execute(location);
         }
         /*
         if (location.getAccuracy() < MIN_ACCURACY) {
@@ -343,7 +340,7 @@ public class FormActivity extends Activity implements LocationListener {
             return "Bell Hall";
         }
 
-        private String getJsonResponse(InputStream in) {
+        private String getJSONResponse(InputStream in) {
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(in));
             StringBuilder sb = new StringBuilder();
             String line = null;
@@ -373,11 +370,8 @@ public class FormActivity extends Activity implements LocationListener {
                 }
             } else {
                 TextView addressView = (TextView) findViewById(R.id.outdoor_address);
-                if (!addressView.isFocused()) {
+                if (!addressView.isFocused() && !result[1].isEmpty()) {
                     addressView.setText(result[1]);
-                }
-                if (result[1].contains("ECONNREFUSED")) {
-                    Toast.makeText(getApplicationContext(), "Please enable network connection!", Toast.LENGTH_LONG).show();
                 }
             }
         }
@@ -395,12 +389,12 @@ public class FormActivity extends Activity implements LocationListener {
                     Log.d(getClass().getSimpleName(), "Requesting Google Maps API: " + url.toString());
                 } catch (MalformedURLException mue) {
                     Log.e(getClass().getSimpleName(), mue.getMessage());
-                    return (new String[] {building, mue.getMessage()});
+                    return (new String[] {building, ""});
                 }
                 try {
                     urlConnection = (HttpURLConnection) url.openConnection();
                     if (urlConnection.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                        String jsonResponseString = getJsonResponse(urlConnection.getInputStream());
+                        String jsonResponseString = getJSONResponse(urlConnection.getInputStream());
                         Log.d(getClass().getSimpleName(), jsonResponseString);
                         JSONObject jsonResponse = new JSONObject(jsonResponseString);
                         String address = jsonResponse.getJSONArray(getString(R.string.json_array_tag)).getJSONObject(0).getString(getString(R.string.json_address_tag));
@@ -408,15 +402,15 @@ public class FormActivity extends Activity implements LocationListener {
                         return (new String[] {building, address});
                     }
                     Log.d(getClass().getSimpleName(), "Response: " + urlConnection.getResponseMessage());
-                    return new String[] {building, urlConnection.getResponseMessage()};
+                    return new String[] {building, ""};
                 } catch (IOException ioe) {
                     ioe.printStackTrace();
                     Log.e(getClass().getSimpleName(), ioe.getMessage());
-                    return new String[] {building, ioe.getMessage()};
+                    return new String[] {building, ""};
                 } catch (JSONException je) {
                     je.printStackTrace();
                     Log.e(getClass().getSimpleName(), je.getMessage());
-                    return new String[] {building, je.getMessage()};
+                    return new String[] {building, ""};
                 } finally {
                     urlConnection.disconnect();
                 }
