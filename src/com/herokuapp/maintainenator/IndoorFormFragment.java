@@ -39,6 +39,7 @@ public class IndoorFormFragment extends Fragment implements OnItemSelectedListen
     private ImageView imageView;
     private EditText descriptionText;
     private EditText roomText;
+    private EditText extraLocation;
     private static int longClickedId;
 
     private String[] photoArray;
@@ -69,6 +70,7 @@ public class IndoorFormFragment extends Fragment implements OnItemSelectedListen
         layout.findViewById(R.id.indoor_submit).setOnClickListener(new IndoorSubmitClickListener());
         descriptionText = (EditText) layout.findViewById(R.id.indoor_description);
         roomText = (EditText) layout.findViewById(R.id.room_text);
+        extraLocation = (EditText) layout.findViewById(R.id.indoor_location_optional);
         imageView = (ImageView) layout.findViewById(R.id.indoor_image_view1);
         imageView.setOnLongClickListener(this);
         buildingSpinner = (Spinner) layout.findViewById(R.id.building_spinner);
@@ -131,13 +133,21 @@ public class IndoorFormFragment extends Fragment implements OnItemSelectedListen
         sb.append("Content-Disposition: form-data; name=\"floor\"" + END + END + floorSpinner.getSelectedItem().toString() + END);
         sb.append(TWO_HYPHENS + BOUNDARY + END);
         sb.append("Content-Disposition: form-data; name=\"room\"" + END + END + roomText.getText().toString() + END);
+        // Add indoor status
+        sb.append(TWO_HYPHENS + BOUNDARY + END);
+        sb.append("Content-Disposition: form-data; name=\"indoor\"" + END + END + "checked" + END);
+        String extra = extraLocation.getText().toString();
+        if (!extra.isEmpty()) {
+            sb.append(TWO_HYPHENS + BOUNDARY + END);
+            sb.append("Content-Disposition: form-data; name=\"location\"" + END + END + extra + END);
+        }
         return sb.toString();
     }
 
     private class IndoorSubmitClickListener implements OnClickListener {
 
         boolean checkData() {
-            if (descriptionText.getText().toString() == null || roomText.getText().toString() == null) {
+            if (descriptionText.getText().toString().isEmpty() || roomText.getText().toString().isEmpty()) {
                 return false;
             }
             if (photoArray[0] != null || photoArray[1] != null || photoArray[2] != null) {

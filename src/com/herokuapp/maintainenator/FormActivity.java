@@ -217,6 +217,7 @@ public class FormActivity extends Activity implements LocationListener {
             ImageView imageView = (ImageView) findViewById(longClickedId);
             imageView.setImageBitmap(photo);
             imageView.setOnClickListener(new PhotoClickListener(photoURI));
+            outdoorFormFragment.setPhotoPath(longClickedId, photoURI);
             enableNextPhoto(false, longClickedId);
         }
     }
@@ -244,6 +245,7 @@ public class FormActivity extends Activity implements LocationListener {
                 ImageView iv = (ImageView) findViewById(R.id.indoor_image_view3);
                 if (!iv.isLongClickable()) {
                     iv.setOnLongClickListener(indoorFormFragment);
+                    iv.setBackgroundColor(0xFF00BAFF);
                     iv.setImageResource(R.drawable.content_new_picture);
                     iv.setScaleType(ScaleType.CENTER);
                 }
@@ -261,6 +263,7 @@ public class FormActivity extends Activity implements LocationListener {
                 ImageView iv = (ImageView) findViewById(R.id.outdoor_image_view3);
                 if (!iv.isLongClickable()) {
                     iv.setOnLongClickListener(outdoorFormFragment);
+                    iv.setBackgroundColor(0xFF00BAFF);
                     iv.setImageResource(R.drawable.content_new_picture);
                     iv.setScaleType(ScaleType.CENTER);
                 }
@@ -492,7 +495,12 @@ public class FormActivity extends Activity implements LocationListener {
                 String encodedCredential = Base64.encodeToString(credential.getBytes(), Base64.DEFAULT);
                 Log.d(getClass().getSimpleName(), "encodedCredential: " + encodedCredential);
                 urlConnection.setRequestProperty("Authorization", "Basic " + encodedCredential);
-                String requestBodyFirstPart = indoorFormFragment.generateMultipartForm();
+                String requestBodyFirstPart = null;
+                if (actionBar.getSelectedTab().getTag().equals("indoor")) {
+                    requestBodyFirstPart = indoorFormFragment.generateMultipartForm();
+                } else {
+                    requestBodyFirstPart = outdoorFormFragment.generateMultipartForm();
+                }
                 urlConnection.connect();
                 DataOutputStream out = new DataOutputStream(urlConnection.getOutputStream());
                 out.writeBytes(requestBodyFirstPart);
