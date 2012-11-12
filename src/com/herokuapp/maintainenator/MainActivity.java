@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -13,6 +14,7 @@ public class MainActivity extends Activity implements OnClickListener{
 
     private Button settingsButton;
     private Button createButton;
+    private Button reportButton;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -24,6 +26,9 @@ public class MainActivity extends Activity implements OnClickListener{
 
         createButton = (Button) findViewById(R.id.create_button);
         createButton.setOnClickListener(this);
+
+        reportButton = (Button) findViewById(R.id.my_reports_button);
+        reportButton.setOnClickListener(this);
 
         ((Button) findViewById(R.id.view_button)).setOnClickListener(this);
 
@@ -48,6 +53,8 @@ public class MainActivity extends Activity implements OnClickListener{
             startActivity(new Intent(this, FormActivity.class));
         } else if (viewId == R.id.view_button) {
             startActivity(new Intent(this, LoginActivity.class));
+        } else if (viewId == R.id.my_reports_button) {
+            startActivity(new Intent(this, ReportActivity.class));
         }
     }
 }

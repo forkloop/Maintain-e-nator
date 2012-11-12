@@ -1,5 +1,8 @@
 package com.herokuapp.maintainenator;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import android.app.Fragment;
 import android.content.Intent;
 import android.location.Location;
@@ -122,9 +125,15 @@ public class OutdoorFormFragment extends Fragment implements OnLongClickListener
         } else if (vid == R.id.outdoor_submit) {
             if (checkData()) {
                 ((FormActivity) getActivity()).new UploadMultipartTask().execute(photoArray);
+                DatabaseHandler db = new DatabaseHandler(((FormActivity) getActivity()).getApplicationContext());
+                History outdoor_report = new History (descriptionText.getText().toString(), locationText.getText().toString());
+                db.addReport(outdoor_report);
+                db.close();
+                Log.d(getClass().getSimpleName(), "Add outdoor report to database " + outdoor_report);
             } else {
                 Toast.makeText(getActivity(), "Please fill in.", Toast.LENGTH_LONG).show();
             }
         }
     }
+
 }

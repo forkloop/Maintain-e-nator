@@ -1,6 +1,8 @@
 package com.herokuapp.maintainenator;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import android.app.Fragment;
@@ -167,9 +169,17 @@ public class IndoorFormFragment extends Fragment implements OnItemSelectedListen
         public void onClick(View v) {
             if (checkData()) {
                 ((FormActivity) getActivity()).new UploadMultipartTask().execute(photoArray);
+                DatabaseHandler db = new DatabaseHandler(((FormActivity) getActivity()).getApplicationContext());
+                String location = buildingSpinner.getSelectedItem().toString() + " " + floorSpinner.getSelectedItem().toString() + " " + roomText.getText().toString();
+                String description = descriptionText.getText().toString() + extraLocation.getText().toString();;
+                History indoor_report = new History(description, location);
+                db.addReport(indoor_report);
+                db.close();
+                Log.d(getClass().getSimpleName(), "Add indoor report to database " + indoor_report);
             } else {
                 Toast.makeText(getActivity(), "Please fill in.", Toast.LENGTH_LONG).show();
             }
         }
+
     }
 }
