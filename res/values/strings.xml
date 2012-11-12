@@ -17,6 +17,7 @@
     <string name="google_map_url">http://maps.googleapis.com/maps/api/geocode/json?latlng=</string>
     <string name="json_address_tag">formatted_address</string>
     <string name="json_array_tag">results</string>
+    <string name="my_reports">History</string>
 
     <string name="main_heading">Maintain-e-nator</string>
     <string name="title_activity_main">Maintainenator</string>
