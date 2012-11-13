@@ -6,11 +6,13 @@ import android.app.ActionBar;
 import android.app.ListActivity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
+import android.widget.ListView;
 
 public class ReportActivity extends ListActivity implements OnItemClickListener {
 
@@ -26,7 +28,9 @@ public class ReportActivity extends ListActivity implements OnItemClickListener 
       // show the elements in a ListView
       ArrayAdapter<History> adapter = new ArrayAdapter<History>(this,
           android.R.layout.simple_list_item_1, values);
-      setListAdapter(adapter);
+      ListView listView = getListView();
+      listView.setAdapter(adapter);
+      listView.setOnItemClickListener(this);
     }
 
     @Override
@@ -44,6 +48,10 @@ public class ReportActivity extends ListActivity implements OnItemClickListener 
 
     @Override
     public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-        //TODO info dialog
+        Log.d(getClass().getSimpleName(), "position: " + position + ", id: " + id);
+        Intent intent = new Intent(this, DetailReportActivity.class);
+        // position start from 0, while rowid start from 1.
+        intent.putExtra("rowid", position + 1);
+        startActivity(intent);
     }
 }

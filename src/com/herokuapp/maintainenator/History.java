@@ -7,8 +7,9 @@ public class History {
     private String date;
     private String description;
     private String location;
+    private String photosPath;
 
-    public History() {
+    public History () {
     }
 
     public History (String description, String location) {
@@ -44,9 +45,17 @@ public class History {
         this.location = location;
     }
 
+    public void setPhotosPath(String path) {
+        this.photosPath = path;
+    }
+
+    public String getPhotosPath() {
+        return this.photosPath;
+    }
+
     @Override
     public String toString() {
-        return getDate() + "\n" + getLocation() + "\n" + getDescription();
+        return getDescription() + "@ " + getLocation();
     }
 
 }

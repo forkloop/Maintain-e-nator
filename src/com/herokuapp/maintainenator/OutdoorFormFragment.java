@@ -24,6 +24,7 @@ public class OutdoorFormFragment extends Fragment implements OnLongClickListener
     private static final String BOUNDARY = "1q2w3e4r5t";
     private static final String TWO_HYPHENS = "--";
     private static final int MAX_PHOTO_NUM = 3;
+    private static final String PHOTO_PATH_SEPARATOR = "##";
 
     private String[] photoArray;
     private EditText descriptionText;
@@ -108,6 +109,23 @@ public class OutdoorFormFragment extends Fragment implements OnLongClickListener
         return true;
     }
 
+    private String joinPhotoPath() {
+        StringBuilder sb = new StringBuilder();
+        boolean first = true;
+        for (int index=0; index<MAX_PHOTO_NUM; index++) {
+            if (photoArray[index] != null && !photoArray[index].isEmpty()) {
+                if (first) {
+                    first = false;
+                    sb.append(photoArray[index]);
+                } else {
+                    sb.append(PHOTO_PATH_SEPARATOR);
+                    sb.append(photoArray[index]);
+                }
+            }
+        }
+        return sb.toString();
+    }
+
     @Override
     public void onClick(View v) {
         int vid = v.getId();
@@ -124,6 +142,7 @@ public class OutdoorFormFragment extends Fragment implements OnLongClickListener
                 ((FormActivity) getActivity()).new UploadMultipartTask().execute(photoArray);
                 DatabaseHandler db = new DatabaseHandler(((FormActivity) getActivity()).getApplicationContext());
                 History outdoorReport = new History (descriptionText.getText().toString(), locationText.getText().toString());
+                outdoorReport.setPhotosPath(joinPhotoPath());
                 db.addReport(outdoorReport);
                 db.close();
                 Log.d(getClass().getSimpleName(), "Add outdoor report to database " + outdoorReport);

@@ -69,5 +69,11 @@
             android:label="@string/my_reports"
             android:screenOrientation="portrait">
         </activity>
-    </application>
+        <activity
+            android:name=".DetailReportActivity"
+            android:label="@string/my_reports"
+            android:theme="@android:style/Theme.Holo.Light.Dialog.NoActionBar"
+            android:screenOrientation="portrait">
+        </activity>
+        </application>
 </manifest>
