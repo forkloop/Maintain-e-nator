@@ -9,12 +9,17 @@
     <TextView
         android:id="@+id/welcome"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="48dp"
         android:text="@string/welcome"
         android:layout_marginTop="20dp"
         android:layout_marginBottom="10dp"
+        android:background="#FF4444"
         android:textSize="24sp"
-        android:textColor="#019AD2"/>
+        android:textStyle="bold"
+        android:gravity="center_vertical"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:textColor="#FFFFFF"/>
 
     <TextView
         android:layout_width="wrap_content"

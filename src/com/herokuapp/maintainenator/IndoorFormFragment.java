@@ -5,8 +5,6 @@ import java.util.List;
 
 import android.app.Fragment;
 import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -25,6 +23,7 @@ import android.widget.Toast;
 
 public class IndoorFormFragment extends Fragment implements OnItemSelectedListener, OnLongClickListener {
 
+    private static final String PHOTO_PATH_SEPARATOR = "##";
     private static final String END = "\r\n";
     private static final String BOUNDARY = "1q2w3e4r5t";
     private static final String TWO_HYPHENS = "--";
@@ -57,9 +56,6 @@ public class IndoorFormFragment extends Fragment implements OnItemSelectedListen
     @Override
     public void onResume() {
         super.onResume();
-        LocationManager locationManager = ((FormActivity) getActivity()).getLocationManager();
-        locationManager.requestSingleUpdate(LocationManager.NETWORK_PROVIDER, (LocationListener) getActivity(), null);
-        locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, (LocationListener) getActivity(), null);
     }
 
     @Override
@@ -148,6 +144,23 @@ public class IndoorFormFragment extends Fragment implements OnItemSelectedListen
         return sb.toString();
     }
 
+    private String joinPhotoPath() {
+        StringBuilder sb = new StringBuilder();
+        boolean first = true;
+        for (int index=0; index<MAX_PHOTO_NUM; index++) {
+            if (photoArray[index] != null && !photoArray[index].isEmpty()) {
+                if (first) {
+                    first = false;
+                    sb.append(photoArray[index]);
+                } else {
+                    sb.append(PHOTO_PATH_SEPARATOR);
+                    sb.append(photoArray[index]);
+                }
+            }
+        }
+        return sb.toString();
+    }
+
     private class IndoorSubmitClickListener implements OnClickListener {
 
         boolean checkData() {
@@ -171,6 +184,7 @@ public class IndoorFormFragment extends Fragment implements OnItemSelectedListen
                 String location = buildingSpinner.getSelectedItem().toString() + " " + floorSpinner.getSelectedItem().toString() + " " + roomText.getText().toString();
                 String description = descriptionText.getText().toString() + extraLocation.getText().toString();;
                 History indoorReport = new History(description, location);
+                indoorReport.setPhotosPath(joinPhotoPath());
                 db.addReport(indoorReport);
                 db.close();
                 Log.d(getClass().getSimpleName(), "Add indoor report to database " + indoorReport);

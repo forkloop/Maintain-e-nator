@@ -28,7 +28,7 @@ public class DetailReportActivity extends Activity {
             ((TextView) findViewById(R.id.detail_report_description)).setText(history.getDescription());
             ((TextView) findViewById(R.id.detail_report_location)).setText(history.getLocation());
             String photosPath = history.getPhotosPath();
-            if (!photosPath.isEmpty()) {
+            if (photosPath != null && !photosPath.isEmpty()) {
                 String[] photos = photosPath.split(PHOTO_PATH_SEPARATOR);
                 Log.d(getClass().getSimpleName(), Arrays.toString(photos));
                 if (photos.length > 0) {

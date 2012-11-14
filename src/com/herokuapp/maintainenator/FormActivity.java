@@ -59,7 +59,6 @@ public class FormActivity extends Activity implements LocationListener {
     private static final int CAMERA_REQUEST = 0;
     private static final int ALBUM_REQUEST = 1;
     private static final float MIN_ACCURACY = 100;
-    private static final long LOCATION_UPDATE_TIME = 5000L;
     private Activity currentActivity;
     private ActionBar actionBar;
     private IndoorFormFragment indoorFormFragment;
@@ -73,6 +72,10 @@ public class FormActivity extends Activity implements LocationListener {
     private String username;
     private String password;
 
+    private String cachedBuilding;
+    private String cachedLocation;
+    private boolean networkDisconnectedToast = true;
+    private boolean reverseGeoSucceed = false;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -99,32 +102,40 @@ public class FormActivity extends Activity implements LocationListener {
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        if (checkNetworkStatus()) {
-            localDev = sharedPreferences.getBoolean("dev_mode", true);
-            Log.d(getClass().getSimpleName(), "local_dev?: " + localDev);
-            username = sharedPreferences.getString("username", "");
-            Log.d(getClass().getSimpleName(), "username: " + username);
-            password = sharedPreferences.getString("password", "");
-            Log.d(getClass().getSimpleName(), "Requesting location...");
-            Log.d(getClass().getSimpleName(), "Network enabled: " + locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER));
-            Log.d(getClass().getSimpleName(), "GPS enabled: " + locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER));
-            // STOP using periodical update
-            //locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, LOCATION_UPDATE_TIME, 0, this);
-            //locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, LOCATION_UPDATE_TIME, 0, this);
-        } else {
-            Toast.makeText(this, "Please enable network connection.", Toast.LENGTH_LONG).show();
+    protected void onStart() {
+        super.onStart();
+        Log.d(TAG, "onStart");
+        if (!checkNetworkStatus()) {
+            networkDisconnectedToast = false;
+            Toast.makeText(this, "Network disconnected.", Toast.LENGTH_LONG).show();
+        }
+        localDev = sharedPreferences.getBoolean("dev_mode", true);
+        Log.d(TAG, "local_dev?: " + localDev);
+        username = sharedPreferences.getString("username", "");
+        Log.d(TAG, "username: " + username);
+        password = sharedPreferences.getString("password", "");
+        // This is ONLY related to the configurations of `Location access` settings. Regardless of whether you have network access or not.
+        // NOTE that network localization will suppress GPS localization.
+        if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+            Log.d(TAG, "Requesting single location update from network provider.");
+            locationManager.requestSingleUpdate(LocationManager.NETWORK_PROVIDER, this, null);
+        }
+        if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            Log.d(TAG, "Requesting single location update from gps provider.");
+            locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, this, null);
         }
     }
 
     @Override
     protected void onPause() {
+        Log.d(TAG, "onPause");
         super.onPause();
     }
 
     @Override
     protected void onStop() {
+        Log.d(TAG, "onStop");
+        networkDisconnectedToast = true;
         locationManager.removeUpdates(this);
         super.onStop();
     }
@@ -284,12 +295,14 @@ public class FormActivity extends Activity implements LocationListener {
         return latestLocation;
     }
 
-    /**
-     */
+    String getCachedLocation() {
+        return cachedLocation;
+    }
+
     @Override
     public void onLocationChanged(Location location) {
         Log.d(getClass().getSimpleName(), "Location changed to: " + location);
-        if (latestLocation == null || location.getAccuracy() < latestLocation.getAccuracy()) {
+        if (latestLocation == null || !reverseGeoSucceed || location.getAccuracy() < latestLocation.getAccuracy()) {
             latestLocation = location;
             new ReverseGeoTask().execute(location);
         }
@@ -316,17 +329,17 @@ public class FormActivity extends Activity implements LocationListener {
 
     @Override
     public void onProviderDisabled(String provider) {
-        Log.d(getClass().getSimpleName(), provider + ": DISABLED!");
+        Log.d(TAG, provider + ": DISABLED!");
     }
 
     @Override
     public void onProviderEnabled(String provider) {
-        Log.d(getClass().getSimpleName(), provider + ": ENABLED!");
+        Log.d(TAG, provider + ": ENABLED!");
     }
 
     @Override
     public void onStatusChanged(String provider, int status, Bundle extra) {
-        Log.d(getClass().getSimpleName(), provider + ": " + status);
+        Log.d(TAG, provider + ": " + status);
     }
 
     /**
@@ -358,6 +371,17 @@ public class FormActivity extends Activity implements LocationListener {
 
         @Override
         protected void onPostExecute(String[] result) {
+            if (!result[0].isEmpty()) {
+                cachedBuilding = result[0];
+            }
+            if (!result[1].isEmpty()) {
+                cachedLocation = result[1];
+            } else {
+                if (networkDisconnectedToast) {
+                    networkDisconnectedToast = false;
+                    Toast.makeText(currentActivity, "Network disconnected.", Toast.LENGTH_LONG).show();
+                }
+            }
             Tab tab = actionBar.getSelectedTab();
             if (tab.getTag().equals("indoor")) {
                 Spinner buildingSpinner = (Spinner) findViewById(R.id.building_spinner);
@@ -388,7 +412,7 @@ public class FormActivity extends Activity implements LocationListener {
                     url = new URL(getString(R.string.google_map_url) + location.getLatitude() + "," + location.getLongitude() + "&sensor=true");
                     Log.d(getClass().getSimpleName(), "Requesting Google Maps API: " + url.toString());
                 } catch (MalformedURLException mue) {
-                    Log.e(getClass().getSimpleName(), mue.getMessage());
+                    Log.e(TAG, "mue: " + mue.getMessage());
                     return (new String[] {building, ""});
                 }
                 try {
@@ -399,17 +423,18 @@ public class FormActivity extends Activity implements LocationListener {
                         JSONObject jsonResponse = new JSONObject(jsonResponseString);
                         String address = jsonResponse.getJSONArray(getString(R.string.json_array_tag)).getJSONObject(0).getString(getString(R.string.json_address_tag));
                         Log.d(getClass().getSimpleName(), "Address: " + address);
+                        reverseGeoSucceed = true;
                         return (new String[] {building, address});
                     }
                     Log.d(getClass().getSimpleName(), "Response: " + urlConnection.getResponseMessage());
                     return new String[] {building, ""};
                 } catch (IOException ioe) {
                     ioe.printStackTrace();
-                    Log.e(getClass().getSimpleName(), ioe.getMessage());
+                    Log.e(getClass().getSimpleName(), "ioe: " + ioe.getMessage());
                     return new String[] {building, ""};
                 } catch (JSONException je) {
                     je.printStackTrace();
-                    Log.e(getClass().getSimpleName(), je.getMessage());
+                    Log.e(getClass().getSimpleName(), "je: " + je.getMessage());
                     return new String[] {building, ""};
                 } finally {
                     urlConnection.disconnect();
@@ -419,10 +444,16 @@ public class FormActivity extends Activity implements LocationListener {
         }
     }
 
+    /**
+     * Basic network connection check. It will also return TRUE if the network or wifi is open, but you are overdraft or doesn't login to wifi.
+     * Android default to use WIFI as data network is WIFI is activated. o/w use network.
+     */
     private boolean checkNetworkStatus() {
         ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
-        Log.d(getClass().getSimpleName(), networkInfo.toString());
+        if (networkInfo != null) {
+            Log.d(TAG, networkInfo.getTypeName() + ": " + networkInfo.isConnected());
+        }
         return networkInfo != null && networkInfo.isConnected();
     }
 

@@ -3,8 +3,6 @@ package com.herokuapp.maintainenator;
 import android.app.Fragment;
 import android.content.Intent;
 import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -56,10 +54,16 @@ public class OutdoorFormFragment extends Fragment implements OnLongClickListener
     @Override
     public void onResume() {
         super.onResume();
-        LocationManager locationManager = ((FormActivity) getActivity()).getLocationManager();
-        // Seems network location will suppress gps location update...
-        //locationManager.requestSingleUpdate(LocationManager.NETWORK_PROVIDER, (LocationListener) getActivity(), null);
-        locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, (LocationListener) getActivity(), null);
+        if (locationText.getText().toString().isEmpty()) {
+            String cachedLocation = ((FormActivity) getActivity()).getCachedLocation();
+            if (cachedLocation != null) {
+                locationText.setText(cachedLocation);
+            }
+        }
+//        LocationManager locationManager = ((FormActivity) getActivity()).getLocationManager();
+//        // Seems network location will suppress gps location update...
+//        //locationManager.requestSingleUpdate(LocationManager.NETWORK_PROVIDER, (LocationListener) getActivity(), null);
+//        locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, (LocationListener) getActivity(), null);
     }
 
     @Override
@@ -133,9 +137,11 @@ public class OutdoorFormFragment extends Fragment implements OnLongClickListener
             Location latestLocation = ((FormActivity) getActivity()).getLatestLocation();
             if (latestLocation != null) {
                 Intent intent = new Intent(getActivity(), MapViewActivity.class);
-                intent.putExtra("latitude", (int) latestLocation.getLatitude() * 1000000L);
-                intent.putExtra("longtitude", (int) latestLocation.getLongitude() * 1000000L);
+                intent.putExtra("latitude", (int) latestLocation.getLatitude() * 1000000);
+                intent.putExtra("longtitude", (int) latestLocation.getLongitude() * 1000000);
                 startActivity(intent);
+            } else {
+                Toast.makeText(getActivity(), "Can't acquire current location.", Toast.LENGTH_LONG).show();
             }
         } else if (vid == R.id.outdoor_submit) {
             if (checkData()) {
