@@ -26,7 +26,8 @@ public class MapViewActivity extends MapActivity {
         int latitude = 0;
         int longitude = 0;
         if (intent != null) {
-            latitude = intent.getIntExtra("latitude", 43000828);
+            // default to Davis Hall
+            latitude = intent.getIntExtra("latitude", 43002854);
             longitude = intent.getIntExtra("longitude", -78789839);
             Log.d(TAG, latitude + ", " + longitude);
         }

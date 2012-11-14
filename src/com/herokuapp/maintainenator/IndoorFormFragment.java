@@ -23,6 +23,7 @@ import android.widget.Toast;
 
 public class IndoorFormFragment extends Fragment implements OnItemSelectedListener, OnLongClickListener {
 
+    private static final String TAG = "IndoorFormFragment";
     private static final String PHOTO_PATH_SEPARATOR = "##";
     private static final String END = "\r\n";
     private static final String BOUNDARY = "1q2w3e4r5t";
@@ -39,12 +40,13 @@ public class IndoorFormFragment extends Fragment implements OnItemSelectedListen
     private EditText roomText;
     private EditText extraLocation;
     private static int longClickedId;
-
+    private int buildingSelectedTime;
     private String[] photoArray;
 
     @Override
     public void onCreate (Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        buildingSelectedTime = 0;
         photoArray = new String[MAX_PHOTO_NUM];
         floorArray = new ArrayList<String>(HIGEST_FLOOR);
         floorArray.add("Base");
@@ -82,6 +84,9 @@ public class IndoorFormFragment extends Fragment implements OnItemSelectedListen
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
         if (parent.getId() == R.id.building_spinner) {
+            synchronized(this) {
+                buildingSelectedTime++;
+            }
             Log.d(getClass().getSimpleName(), "Building spinner selected.");
             ArrayAdapter<String> floorAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item, floorArray.subList(0, FLOOR[pos]+1));
             floorAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -99,6 +104,12 @@ public class IndoorFormFragment extends Fragment implements OnItemSelectedListen
         PhotoActionDialogFragment photoActionDialog = new PhotoActionDialogFragment();
         photoActionDialog.show(getActivity().getFragmentManager(), "photo_action");
         return true;
+    }
+
+    int getBuildingSelectedTime() {
+        synchronized(this) {
+            return buildingSelectedTime;
+        }
     }
 
     static int getLongClickedId() {
@@ -181,15 +192,15 @@ public class IndoorFormFragment extends Fragment implements OnItemSelectedListen
             if (checkData()) {
                 ((FormActivity) getActivity()).new UploadMultipartTask().execute(photoArray);
                 DatabaseHandler db = new DatabaseHandler(((FormActivity) getActivity()).getApplicationContext());
-                String location = buildingSpinner.getSelectedItem().toString() + " " + floorSpinner.getSelectedItem().toString() + " " + roomText.getText().toString();
+                String location = buildingSpinner.getSelectedItem().toString() + ", " + floorSpinner.getSelectedItem().toString() + ", " + roomText.getText().toString();
                 String description = descriptionText.getText().toString() + extraLocation.getText().toString();;
                 History indoorReport = new History(description, location);
                 indoorReport.setPhotosPath(joinPhotoPath());
                 db.addReport(indoorReport);
                 db.close();
-                Log.d(getClass().getSimpleName(), "Add indoor report to database " + indoorReport);
+                Log.d(TAG, "Add indoor report to database " + indoorReport);
             } else {
-                Toast.makeText(getActivity(), "Please fill in.", Toast.LENGTH_LONG).show();
+                Toast.makeText(getActivity(), "Missing info.", Toast.LENGTH_LONG).show();
             }
         }
 

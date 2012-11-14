@@ -49,7 +49,7 @@
     android:layout_height="48dp"
     android:layout_width="match_parent"
     android:layout_alignParentBottom="true"
-    android:layout_marginBottom="10dp"
+    android:layout_marginBottom="50dp"
     android:text="@string/detail_report_delete"
     android:textColor="#FFFFFF"
     android:textStyle="bold"

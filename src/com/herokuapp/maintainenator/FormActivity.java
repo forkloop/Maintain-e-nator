@@ -11,6 +11,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -50,6 +51,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class FormActivity extends Activity implements LocationListener {
+
+    private static final String GOOGLE_PLACE_API = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?radius=100&types=establishment&sensor=true&key=AIzaSyCL6FCIh_lcj9RPY-TZ6O08acGrffJvbq8&location=";
 
     private static final String END = "\r\n";
     private static final String BOUNDARY = "1q2w3e4r5t";
@@ -114,8 +117,10 @@ public class FormActivity extends Activity implements LocationListener {
         username = sharedPreferences.getString("username", "");
         Log.d(TAG, "username: " + username);
         password = sharedPreferences.getString("password", "");
-        // This is ONLY related to the configurations of `Location access` settings. Regardless of whether you have network access or not.
-        // NOTE that network localization will suppress GPS localization.
+        /* This is ONLY related to the configurations of `Location access` settings. Regardless of whether you have network access or not.
+          * NOTE that network localization will suppress GPS localization.
+          * If WIFI/mobile data is turned on, it will use WIFI/mobile data instead of GPS?
+          */
         if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
             Log.d(TAG, "Requesting single location update from network provider.");
             locationManager.requestSingleUpdate(LocationManager.NETWORK_PROVIDER, this, null);
@@ -301,30 +306,11 @@ public class FormActivity extends Activity implements LocationListener {
 
     @Override
     public void onLocationChanged(Location location) {
-        Log.d(getClass().getSimpleName(), "Location changed to: " + location);
+        Log.d(TAG, "Location changed to: " + location);
         if (latestLocation == null || !reverseGeoSucceed || location.getAccuracy() < latestLocation.getAccuracy()) {
             latestLocation = location;
             new ReverseGeoTask().execute(location);
         }
-        /*
-        if (location.getAccuracy() < MIN_ACCURACY) {
-            if (location.getProvider().equals("gps")) {
-                if (cachedGPSLocation == null || Math.abs(location.getLatitude() - cachedGPSLocation.getLatitude()) >1e-5 ||
-                        Math.abs(location.getLongitude() - cachedGPSLocation.getLongitude()) > 1e-5) {
-                    cachedGPSLocation = location;
-                    new ReverseGeoTask().execute(location);
-                }
-            } else if (location.getProvider().equals("network")) {
-                if (cachedNetworkLocation == null || Math.abs(location.getLatitude() - cachedNetworkLocation.getLatitude()) > 1e-5 ||
-                        Math.abs(location.getLongitude() - cachedNetworkLocation.getLongitude()) > 1e-5) {
-                    cachedNetworkLocation = location;
-                    new ReverseGeoTask().execute(location);
-                }
-            } else {
-                Log.d(getClass().getSimpleName(), "Update from unknown location provider: " + location.getProvider());
-            }
-        }
-        */
     }
 
     @Override
@@ -384,12 +370,16 @@ public class FormActivity extends Activity implements LocationListener {
             }
             Tab tab = actionBar.getSelectedTab();
             if (tab.getTag().equals("indoor")) {
-                Spinner buildingSpinner = (Spinner) findViewById(R.id.building_spinner);
-                String[] buildingArray = getResources().getStringArray(R.array.buildings);
-                for (int index=0; index<buildingArray.length; index++) {
-                    if (buildingArray[index].equals(result[0])) {
-                        buildingSpinner.setSelection(index);
-                        break;
+                int num = indoorFormFragment.getBuildingSelectedTime();
+                Log.d(TAG, "" + num);
+                if (num < 2) {
+                    Spinner buildingSpinner = (Spinner) findViewById(R.id.building_spinner);
+                    String[] buildingArray = getResources().getStringArray(R.array.buildings);
+                    for (int index=0; index<buildingArray.length; index++) {
+                        if (buildingArray[index].equals(result[0])) {
+                            buildingSpinner.setSelection(index);
+                            break;
+                        }
                     }
                 }
             } else {
@@ -409,32 +399,48 @@ public class FormActivity extends Activity implements LocationListener {
                 HttpURLConnection urlConnection = null;
                 URL url = null;
                 try {
-                    url = new URL(getString(R.string.google_map_url) + location.getLatitude() + "," + location.getLongitude() + "&sensor=true");
-                    Log.d(getClass().getSimpleName(), "Requesting Google Maps API: " + url.toString());
+                    //url = new URL(getString(R.string.google_map_url) + location.getLatitude() + "," + location.getLongitude() + "&sensor=true");
+                    url = new URL(GOOGLE_PLACE_API + location.getLatitude() + "," + location.getLongitude());
+                    Log.d(TAG, "Requesting Google Place API: " + url.toString());
                 } catch (MalformedURLException mue) {
                     Log.e(TAG, "mue: " + mue.getMessage());
                     return (new String[] {building, ""});
                 }
                 try {
                     urlConnection = (HttpURLConnection) url.openConnection();
+                    Log.d(TAG, "" + urlConnection);
                     if (urlConnection.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                        String jsonResponseString = getJSONResponse(urlConnection.getInputStream());
-                        Log.d(getClass().getSimpleName(), jsonResponseString);
+                        InputStream in = urlConnection.getInputStream();
+                        if (!url.getHost().equals(urlConnection.getURL().getHost())) {
+                            Log.w(TAG, "Redirecting, connected to UB Wireless?");
+                            return (new String[] {building, ""});
+                        }
+                        String jsonResponseString = getJSONResponse(in);
+                        Log.d(TAG, jsonResponseString);
                         JSONObject jsonResponse = new JSONObject(jsonResponseString);
-                        String address = jsonResponse.getJSONArray(getString(R.string.json_array_tag)).getJSONObject(0).getString(getString(R.string.json_address_tag));
-                        Log.d(getClass().getSimpleName(), "Address: " + address);
-                        reverseGeoSucceed = true;
+                        JSONArray allResults = jsonResponse.getJSONArray("results");
+                        String address = "";
+                        if (allResults.length() > 0) {
+                            JSONObject jsonObject = allResults.getJSONObject(0);
+                            address = jsonObject.getString("name") + ", " + jsonObject.getString("vicinity");
+                            Log.d(TAG, address);
+                            reverseGeoSucceed = true;
+                        }
                         return (new String[] {building, address});
+                        //String address = jsonResponse.getJSONArray(getString(R.string.json_array_tag)).getJSONObject(0).getString(getString(R.string.json_address_tag));
+                        //Log.d(TAG, "Address: " + address);
+                        //reverseGeoSucceed = true;
+                        //return (new String[] {building, address});
                     }
-                    Log.d(getClass().getSimpleName(), "Response: " + urlConnection.getResponseMessage());
+                    Log.d(TAG, "Unexpected response: " + urlConnection.getResponseMessage());
                     return new String[] {building, ""};
                 } catch (IOException ioe) {
                     ioe.printStackTrace();
-                    Log.e(getClass().getSimpleName(), "ioe: " + ioe.getMessage());
+                    Log.e(TAG, "ioe: " + ioe.getMessage());
                     return new String[] {building, ""};
                 } catch (JSONException je) {
                     je.printStackTrace();
-                    Log.e(getClass().getSimpleName(), "je: " + je.getMessage());
+                    Log.e(TAG, "je: " + je.getMessage());
                     return new String[] {building, ""};
                 } finally {
                     urlConnection.disconnect();
@@ -493,7 +499,15 @@ public class FormActivity extends Activity implements LocationListener {
         @Override
         protected void onPostExecute(String result) {
             progressDialog.dismiss();
-            Toast.makeText(getApplicationContext(), result, Toast.LENGTH_LONG).show();
+            if (result.equals("201")) {
+                Toast.makeText(getApplicationContext(), "Upload successfully.", Toast.LENGTH_LONG).show();
+                startActivity(new Intent(getApplicationContext(), ReportActivity.class));
+            } else if (result.equals("301")){
+            Toast.makeText(getApplicationContext(), "Not sign in to network?", Toast.LENGTH_LONG).show();
+            } else {
+                Log.d(TAG, result);
+                Toast.makeText(getApplicationContext(), "Network disconnected.", Toast.LENGTH_LONG).show();
+            }
         }
 
         @Override
@@ -518,7 +532,6 @@ public class FormActivity extends Activity implements LocationListener {
                 urlConnection.setRequestProperty("Content-Type", "multipart/form-data;boundary=" + BOUNDARY);
                 String credential = username + ":" + password;
                 String encodedCredential = Base64.encodeToString(credential.getBytes(), Base64.DEFAULT);
-                Log.d(getClass().getSimpleName(), "encodedCredential: " + encodedCredential);
                 urlConnection.setRequestProperty("Authorization", "Basic " + encodedCredential);
                 String requestBodyFirstPart = null;
                 if (actionBar.getSelectedTab().getTag().equals("indoor")) {
@@ -555,11 +568,19 @@ public class FormActivity extends Activity implements LocationListener {
                 out.flush();
                 out.close();
                 Log.d(getClass().getSimpleName(), "Finish uploading photos...");
-                Log.d(getClass().getSimpleName(), "" + urlConnection.getResponseCode());
-                return urlConnection.getResponseMessage();
+                int responseCode = urlConnection.getResponseCode();
+                Log.d(getClass().getSimpleName(), "" + responseCode);
+                if (responseCode == HttpURLConnection.HTTP_CREATED) {
+                    return "201";
+                } else if (responseCode== HttpURLConnection.HTTP_OK) {
+                    Log.d(TAG, "dumping to /etc/dev");
+                    return "301";
+                } else {
+                    return "400";
+                }
             } catch (IOException ioe) {
                 ioe.printStackTrace();
-                return ioe.getMessage();
+                return "400";
             } finally {
                 urlConnection.disconnect();
             }

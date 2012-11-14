@@ -23,10 +23,13 @@
 
     <TextView
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="48dp"
         android:text="@string/main_heading"
         android:layout_marginTop="40dp"
-        android:layout_marginBottom="10dp"
+        android:layout_marginBottom="20dp"
+        android:paddingLeft="4dp"
+        android:paddingRight="3dp"
+        android:background="#EEEEEE"
         android:textSize="36sp"
         android:textColor="#99CC00"/>
 
