@@ -50,31 +50,41 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         Cursor cursor = db.rawQuery(selectQuery, null);
 
         // looping through all rows and adding to list
-        if (cursor.moveToFirst()) {
-            do {
-                // Don't fetch photos because we are not using it in list view.
-                //TODO add id entry, if user delete some report
-                History history = new History();
-                history.setDate(cursor.getString(0));
-                history.setDescription(cursor.getString(1));
-                history.setLocation(cursor.getString(2));
-                reportList.add(history);
-            } while (cursor.moveToNext());
+        try {
+            if (cursor.moveToFirst()) {
+                do {
+                    // Don't fetch photos because we are not using it in list view.
+                    //TODO add id entry, if user delete some report
+                    History history = new History();
+                    history.setDate(cursor.getString(0));
+                    history.setDescription(cursor.getString(1));
+                    history.setLocation(cursor.getString(2));
+                    reportList.add(history);
+                } while (cursor.moveToNext());
+            }
+            return reportList;
+        } finally {
+            db.close();
+            cursor.close();
         }
-        return reportList;
     }
 
     public History getReportById(int id) {
         String query = "SELECT * FROM " + TABLE_NAME + " WHERE rowid=?";
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.rawQuery(query, new String[] {""+id});
-        if (cursor.moveToFirst()) {
-            History history = new History();
-            history.setDate(cursor.getString(0));
-            history.setDescription(cursor.getString(1));
-            history.setLocation(cursor.getString(2));
-            history.setPhotosPath(cursor.getString(3));
-            return history;
+        try {
+            if (cursor.moveToFirst()) {
+                History history = new History();
+                history.setDate(cursor.getString(0));
+                history.setDescription(cursor.getString(1));
+                history.setLocation(cursor.getString(2));
+                history.setPhotosPath(cursor.getString(3));
+                return history;
+            }
+        } finally {
+            db.close();
+            cursor.close();
         }
         return null;
     }

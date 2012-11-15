@@ -193,7 +193,7 @@ public class IndoorFormFragment extends Fragment implements OnItemSelectedListen
                 ((FormActivity) getActivity()).new UploadMultipartTask().execute(photoArray);
                 DatabaseHandler db = new DatabaseHandler(((FormActivity) getActivity()).getApplicationContext());
                 String location = buildingSpinner.getSelectedItem().toString() + ", " + floorSpinner.getSelectedItem().toString() + ", " + roomText.getText().toString();
-                String description = descriptionText.getText().toString() + extraLocation.getText().toString();;
+                String description = descriptionText.getText().toString() + ", " + extraLocation.getText().toString();;
                 History indoorReport = new History(description, location);
                 indoorReport.setPhotosPath(joinPhotoPath());
                 db.addReport(indoorReport);

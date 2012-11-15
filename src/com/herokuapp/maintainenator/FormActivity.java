@@ -107,6 +107,10 @@ public class FormActivity extends Activity implements LocationListener {
     @Override
     protected void onStart() {
         super.onStart();
+        Log.d(TAG, "reverse succeed? " + reverseGeoSucceed);
+        if (latestLocation != null) {
+            Log.d(TAG, "live..." + latestLocation.toString());
+        }
         Log.d(TAG, "onStart");
         if (!checkNetworkStatus()) {
             networkDisconnectedToast = false;
@@ -141,6 +145,7 @@ public class FormActivity extends Activity implements LocationListener {
     protected void onStop() {
         Log.d(TAG, "onStop");
         networkDisconnectedToast = true;
+        //TODO need this?
         locationManager.removeUpdates(this);
         super.onStop();
     }
@@ -233,9 +238,18 @@ public class FormActivity extends Activity implements LocationListener {
 
     public void deletePhoto() {
         if (actionBar.getSelectedTab().getTag().equals("indoor")) {
-            ImageView imageView = (ImageView) findViewById(IndoorFormFragment.getLongClickedId());
+            int longClickedId = IndoorFormFragment.getLongClickedId();
+            ImageView imageView = (ImageView) findViewById(longClickedId);
             imageView.setOnClickListener(null);
             imageView.setImageBitmap(null);
+            indoorFormFragment.setPhotoPath(longClickedId, null);
+            imageView.setImageResource(R.drawable.content_new_picture);
+        } else {
+            int longClickedId = outdoorFormFragment.getLongClickedId();
+            ImageView imageView = (ImageView) findViewById(longClickedId);
+            imageView.setOnClickListener(null);
+            imageView.setImageBitmap(null);
+            outdoorFormFragment.setPhotoPath(longClickedId, null);
             imageView.setImageResource(R.drawable.content_new_picture);
         }
     }
@@ -336,7 +350,7 @@ public class FormActivity extends Activity implements LocationListener {
 
         private String findBuilding(Location location) {
             //TODO use geo data
-            return "Bell Hall";
+            return "Davis Hall";
         }
 
         private String getJSONResponse(InputStream in) {
@@ -422,7 +436,8 @@ public class FormActivity extends Activity implements LocationListener {
                         String address = "";
                         if (allResults.length() > 0) {
                             JSONObject jsonObject = allResults.getJSONObject(0);
-                            address = jsonObject.getString("name") + ", " + jsonObject.getString("vicinity");
+                            //address = jsonObject.getString("name") + ", " + jsonObject.getString("vicinity");
+                            address = jsonObject.getString("vicinity");
                             Log.d(TAG, address);
                             reverseGeoSucceed = true;
                         }
