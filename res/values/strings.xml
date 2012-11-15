@@ -58,4 +58,6 @@
     <string name="nothank_button">Eh, Maybe Later</string>
     <string name="welcome">Welcome</string>
     <string name="detail_report_delete">DELETE</string>
+    <string name="audio_record">Record an audio</string>
+    <string name="record">Record</string>
 </resources>

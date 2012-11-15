@@ -1,20 +1,32 @@
 package com.herokuapp.maintainenator;
 
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
+import android.app.AlertDialog;
 import android.app.Fragment;
+import android.content.DialogInterface;
 import android.location.Location;
+import android.media.MediaPlayer;
+import android.media.MediaRecorder;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
+import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -23,11 +35,14 @@ import android.widget.Toast;
 
 public class IndoorFormFragment extends Fragment implements OnItemSelectedListener, OnLongClickListener {
 
+    private static final String AUDIO_DIR = Environment.getExternalStorageDirectory() + File.separator + Environment.DIRECTORY_MUSIC + File.separator;
     private static final String TAG = "IndoorFormFragment";
     private static final String PHOTO_PATH_SEPARATOR = "##";
     private static final String END = "\r\n";
     private static final String BOUNDARY = "1q2w3e4r5t";
     private static final String TWO_HYPHENS = "--";
+
+    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyyMMddHHmmss");
 
     private static final int HIGEST_FLOOR = 5;
     private static final int MAX_PHOTO_NUM = 3;
@@ -43,6 +58,15 @@ public class IndoorFormFragment extends Fragment implements OnItemSelectedListen
     private int buildingSelectedTime;
     private String[] photoArray;
 
+    //Audio
+    private MediaPlayer mediaPlayer;
+    private MediaRecorder mediaRecorder;
+    private Button recordButton;
+    private ImageView audioView;
+    private String audioFilePath;
+    private boolean sendAudioFile;
+    private AlertDialog removeAudioDialog;
+
     @Override
     public void onCreate (Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,6 +77,21 @@ public class IndoorFormFragment extends Fragment implements OnItemSelectedListen
         for(int i=1; i<=HIGEST_FLOOR; i++) {
             floorArray.add(i + "F");
         }
+        //Audio
+        mediaRecorder = new MediaRecorder();
+//        mediaRecorder.setAudioSource(MediaRecorder.AudioSource.DEFAULT);
+//        mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+//        mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+//        Date date = new Date();
+//        audioFilePath = AUDIO_DIR + "audio-" + DATE_FORMAT.format(date) + ".3gp";
+//        mediaRecorder.setOutputFile(audioFilePath);
+    }
+
+    @Override
+    public void onDestroy() {
+        mediaRecorder.release();
+        mediaRecorder = null;
+        super.onDestroy();
     }
 
     @Override
@@ -78,6 +117,12 @@ public class IndoorFormFragment extends Fragment implements OnItemSelectedListen
 
         floorSpinner = (Spinner) layout.findViewById(R.id.floor_spinner);
         floorSpinner.setOnItemSelectedListener(this);
+
+        //Audio
+        recordButton = (Button) layout.findViewById(R.id.indoor_voice);
+        recordButton.setOnTouchListener(new ButtonTouchListener());
+        audioView = (ImageView) layout.findViewById(R.id.indoor_audio_record);
+        audioView.setOnLongClickListener(this);
         return layout;
     }
 
@@ -100,9 +145,15 @@ public class IndoorFormFragment extends Fragment implements OnItemSelectedListen
 
     @Override
     public boolean onLongClick(View v) {
-        longClickedId = v.getId();
-        PhotoActionDialogFragment photoActionDialog = new PhotoActionDialogFragment();
-        photoActionDialog.show(getActivity().getFragmentManager(), "photo_action");
+        if (v.getId() == R.id.indoor_audio_record) {
+            if (sendAudioFile) {
+                generateRemoveAudioDialog().show();
+            }
+        } else {
+            longClickedId = v.getId();
+            PhotoActionDialogFragment photoActionDialog = new PhotoActionDialogFragment();
+            photoActionDialog.show(getActivity().getFragmentManager(), "photo_action");
+        }
         return true;
     }
 
@@ -172,6 +223,78 @@ public class IndoorFormFragment extends Fragment implements OnItemSelectedListen
         return sb.toString();
     }
 
+    private AlertDialog generateRemoveAudioDialog() {
+        if (removeAudioDialog == null) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setMessage("Delete this audio message?")
+                       .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            sendAudioFile = false;
+                            audioView.setOnClickListener(null);
+                            audioView.setClickable(false);
+                        }
+                    })
+                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                        }
+                    });
+            removeAudioDialog = builder.create();
+        }
+        return removeAudioDialog;
+    }
+
+    private class ButtonTouchListener implements OnTouchListener {
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+            int action = event.getAction();
+            if (action == MotionEvent.ACTION_DOWN) {
+                Log.d(TAG, "Start recording.");
+                mediaRecorder.setAudioSource(MediaRecorder.AudioSource.DEFAULT);
+                mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+                mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+                Date date = new Date();
+                audioFilePath = AUDIO_DIR + "audio-" + DATE_FORMAT.format(date) + ".3gp";
+                mediaRecorder.setOutputFile(audioFilePath);
+                try {
+                    mediaRecorder.prepare();
+                    mediaRecorder.start();
+                } catch (IOException ioe) {
+                    Log.e(TAG, ioe.getMessage());
+                }
+            } else if (action == MotionEvent.ACTION_UP) {
+                Log.d(TAG, "Stop recording.");
+                mediaRecorder.stop();
+                sendAudioFile = true;
+                if (!audioView.isClickable()) {
+                    audioView.setOnClickListener(new AudioPlayClickListener());
+                }
+            }
+            // No more actions for following receivers
+            return true;
+        }
+    }
+
+    private class AudioPlayClickListener implements OnClickListener {
+        @Override
+        public void onClick(View v) {
+            if (mediaPlayer == null) {
+                mediaPlayer = new MediaPlayer();
+                try {
+                    mediaPlayer.setDataSource(audioFilePath);
+                    mediaPlayer.prepare();
+                    mediaPlayer.start();
+                } catch (IOException ioe) {
+                    Log.d(TAG, ioe.getMessage());
+                }
+            } else {
+                mediaPlayer.release();
+                mediaPlayer = null;
+            }
+        }
+    }
+
     private class IndoorSubmitClickListener implements OnClickListener {
 
         boolean checkData() {
@@ -203,6 +326,5 @@ public class IndoorFormFragment extends Fragment implements OnItemSelectedListen
                 Toast.makeText(getActivity(), "Missing info.", Toast.LENGTH_LONG).show();
             }
         }
-
     }
 }
