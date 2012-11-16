@@ -11,16 +11,40 @@ import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapActivity;
 import com.google.android.maps.MapController;
 import com.google.android.maps.MapView;
+import com.google.android.maps.MyLocationOverlay;
 import com.google.android.maps.Overlay;
 import com.google.android.maps.OverlayItem;
 
 public class MapViewActivity extends MapActivity {
 
     private static final String TAG = "MapViewActivity";
+    private static final int DRAG_RESULT_CODE = 0;
+    private MyLocationOverlay myLocationOverlay = null;
+    MapItemizedOverlay itemizedOverlay = null;
 
     @Override
     protected boolean isRouteDisplayed() {
         return false;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        myLocationOverlay.enableCompass();
+    }
+
+    @Override
+    public void onPause() {
+        myLocationOverlay.disableCompass();
+        GeoPoint point = itemizedOverlay.getDraggedPoint();
+        if (point != null) {
+            Log.d(TAG, "Set result " + point);
+            Intent intent = new Intent();
+            intent.putExtra("lat", point.getLatitudeE6());
+            intent.putExtra("long", point.getLongitudeE6());
+            setResult(DRAG_RESULT_CODE, intent);
+        }
+        super.onPause();
     }
 
     @Override
@@ -32,7 +56,7 @@ public class MapViewActivity extends MapActivity {
         int latitude = 0;
         int longitude = 0;
         if (intent != null) {
-            // default to Davis Hall
+            // Default to Davis Hall
             latitude = intent.getIntExtra("latitude", 43002854);
             longitude = intent.getIntExtra("longitude", -78789839);
             Log.d(TAG, latitude + ", " + longitude);
@@ -45,10 +69,14 @@ public class MapViewActivity extends MapActivity {
         List<Overlay> mapOverlays = mapView.getOverlays();
         Log.d(TAG, "# of overlays: " + mapOverlays);
         Drawable drawable = this.getResources().getDrawable(R.drawable.location_marker);
-        MapItemizedOverlay itemizedOverlay = new MapItemizedOverlay(drawable, this);
+        itemizedOverlay = new MapItemizedOverlay(drawable, this);
         OverlayItem overlayItem = new OverlayItem(center, null, null);
         itemizedOverlay.addOverlay(overlayItem);
+        // Marker layer
         mapOverlays.add(itemizedOverlay);
+        // Compass layer
+        myLocationOverlay = new MyLocationOverlay(this, mapView);
+        mapOverlays.add(myLocationOverlay);
     }
 
 }

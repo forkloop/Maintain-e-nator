@@ -19,6 +19,8 @@ import android.widget.Toast;
 public class OutdoorFormFragment extends Fragment implements OnLongClickListener, OnClickListener {
 
     private static final String TAG = "OutdoorFormFragment";
+    private static final int MAP_REQUEST_CODE = 123;
+    private static final int DRAG_RESULT_CODE = 0;
 
     private static final String END = "\r\n";
     private static final String BOUNDARY = "1q2w3e4r5t";
@@ -133,6 +135,16 @@ public class OutdoorFormFragment extends Fragment implements OnLongClickListener
     }
 
     @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.d(TAG, "onActivityResult" + requestCode + ", " + resultCode);
+        if (requestCode == MAP_REQUEST_CODE && resultCode == DRAG_RESULT_CODE) {
+            int latitude = data.getIntExtra("lat", 0);
+            int longitude = data.getIntExtra("long", 0);
+            Toast.makeText(getActivity(), latitude + ", " + longitude, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
     public void onClick(View v) {
         int vid = v.getId();
         if (vid == R.id.map_button) {
@@ -142,7 +154,7 @@ public class OutdoorFormFragment extends Fragment implements OnLongClickListener
                 intent.putExtra("latitude", (int) (latestLocation.getLatitude() * 1000000));
                 intent.putExtra("longitude", (int) (latestLocation.getLongitude() * 1000000));
                 Log.d(TAG, latestLocation.getLatitude() + ", " + latestLocation.getLongitude());
-                startActivity(intent);
+                startActivityForResult(intent, MAP_REQUEST_CODE);
             } else {
                 Toast.makeText(getActivity(), "Can't acquire current location.", Toast.LENGTH_LONG).show();
             }
