@@ -44,12 +44,22 @@
     </LinearLayout>
 </HorizontalScrollView>
 
+<TextView
+    android:id="@+id/detail_report_audio"
+    android:layout_height="48dp"
+    android:layout_width="match_parent"
+    android:layout_marginTop="10dp"
+    android:background="#99CC00"
+    android:textColor="#FFFFFF"
+    android:layout_below="@id/detail_report_photos"
+    />
+
 <Button
     android:id="@+id/detail_report_delete"
     android:layout_height="48dp"
     android:layout_width="match_parent"
     android:layout_alignParentBottom="true"
-    android:layout_marginBottom="50dp"
+    android:layout_marginBottom="10dp"
     android:text="@string/detail_report_delete"
     android:textColor="#FFFFFF"
     android:textStyle="bold"

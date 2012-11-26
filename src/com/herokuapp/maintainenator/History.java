@@ -8,6 +8,7 @@ public class History {
     private String description;
     private String location;
     private String photosPath;
+    private String audioPath;
 
     public History () {
     }
@@ -51,6 +52,17 @@ public class History {
 
     public String getPhotosPath() {
         return this.photosPath;
+    }
+
+    public void setAudioPath(String path) {
+        if (path == null) {
+            path = "";
+        }
+        this.audioPath = path;
+    }
+
+    public String getAudioPath() {
+        return this.audioPath;
     }
 
     @Override

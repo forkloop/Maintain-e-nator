@@ -18,7 +18,6 @@ import com.google.android.maps.OverlayItem;
 public class MapViewActivity extends MapActivity {
 
     private static final String TAG = "MapViewActivity";
-    private static final int DRAG_RESULT_CODE = 0;
     private MyLocationOverlay myLocationOverlay = null;
     MapItemizedOverlay itemizedOverlay = null;
 
@@ -35,6 +34,7 @@ public class MapViewActivity extends MapActivity {
 
     @Override
     public void onPause() {
+        super.onPause();
         myLocationOverlay.disableCompass();
         GeoPoint point = itemizedOverlay.getDraggedPoint();
         if (point != null) {
@@ -42,9 +42,9 @@ public class MapViewActivity extends MapActivity {
             Intent intent = new Intent();
             intent.putExtra("lat", point.getLatitudeE6());
             intent.putExtra("long", point.getLongitudeE6());
-            setResult(DRAG_RESULT_CODE, intent);
+            setResult(RESULT_OK, intent);
         }
-        super.onPause();
+        finish();
     }
 
     @Override
@@ -56,7 +56,7 @@ public class MapViewActivity extends MapActivity {
         int latitude = 0;
         int longitude = 0;
         if (intent != null) {
-            // Default to Davis Hall
+            // Default to Davis Hall.
             latitude = intent.getIntExtra("latitude", 43002854);
             longitude = intent.getIntExtra("longitude", -78789839);
             Log.d(TAG, latitude + ", " + longitude);

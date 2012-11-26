@@ -42,6 +42,7 @@ public class DetailReportActivity extends Activity {
                     }
                 }
             }
+            ((TextView) findViewById(R.id.detail_report_audio)).setText(history.getAudioPath());
         }
     }
 }

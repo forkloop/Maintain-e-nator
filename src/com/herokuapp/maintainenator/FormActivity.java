@@ -31,6 +31,7 @@ import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.media.MediaPlayer;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -561,11 +562,11 @@ public class FormActivity extends Activity implements LocationListener {
                 // photos
                 int num = 0;
                 for (int i=0; i<3; i++) {
+                    Log.d(TAG, "Uploading photo...");
                     if (params[i] != null) {
                         num++;
                         out.writeBytes(TWO_HYPHENS + BOUNDARY + END);
                         File photo = new File(params[i]);
-                        Log.d(getClass().getSimpleName(), "Content-Disposition: form-data; name=\"photo" + num + "\"; filename=\"" + photo.getName() + "\"" + END);
                         out.writeBytes("Content-Disposition: form-data; name=\"photo" + num + "\"; filename=\"" + photo.getName() + "\"" + END);
                         out.writeBytes("Content-type: image/jpeg" + END + END);
                         FileInputStream fileInputStream = new FileInputStream(params[i]);
@@ -578,11 +579,27 @@ public class FormActivity extends Activity implements LocationListener {
                         out.writeBytes(END);
                     }
                 }
+                // Audio.
+                if (params[3] != null) {
+                    Log.d(TAG, "Uploading audio...");
+                    out.writeBytes(TWO_HYPHENS + BOUNDARY + END);
+                    File audio = new File(params[3]);
+                    out.writeBytes("Content-Disposition: form-data; name=\"audio\"; filename=\"" + audio.getName() + "\"" + END);
+                    out.writeBytes("Content-type: audio/mp4" + END + END);
+                    FileInputStream fileInputStream = new FileInputStream(params[3]);
+                    byte[] fileBuffer = new byte[1024];
+                    int len = 0;
+                    while ((len = fileInputStream.read(fileBuffer)) != -1) {
+                        out.write(fileBuffer, 0, len);
+                    }
+                    fileInputStream.close();
+                    out.writeBytes(END);
+                }
                 // End
                 out.writeBytes(TWO_HYPHENS + BOUNDARY + TWO_HYPHENS);
                 out.flush();
                 out.close();
-                Log.d(getClass().getSimpleName(), "Finish uploading photos...");
+                Log.d(getClass().getSimpleName(), "Finish uploading...");
                 int responseCode = urlConnection.getResponseCode();
                 Log.d(getClass().getSimpleName(), "" + responseCode);
                 if (responseCode == HttpURLConnection.HTTP_CREATED) {
@@ -598,6 +615,35 @@ public class FormActivity extends Activity implements LocationListener {
                 return "400";
             } finally {
                 urlConnection.disconnect();
+            }
+        }
+    }
+
+    static class AudioPlayListener implements OnClickListener {
+
+        private static final String TAG = "FormActivity$AudioPlayListener";
+        private MediaPlayer mediaPlayer;
+        private String audioFile;
+
+        public AudioPlayListener(MediaPlayer mp, String af) {
+            this.mediaPlayer = mp;
+            this.audioFile = af;
+        }
+
+        @Override
+        public void onClick(View v) {
+            if (mediaPlayer == null) {
+                mediaPlayer = new MediaPlayer();
+                try {
+                    mediaPlayer.setDataSource(audioFile);
+                    mediaPlayer.prepare();
+                    mediaPlayer.start();
+                } catch (IOException ioe) {
+                    Log.d(TAG, ioe.getMessage());
+                }
+            } else {
+                mediaPlayer.release();
+                mediaPlayer = null;
             }
         }
     }

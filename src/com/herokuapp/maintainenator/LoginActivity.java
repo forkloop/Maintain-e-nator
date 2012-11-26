@@ -72,6 +72,7 @@ public class LoginActivity extends Activity implements OnClickListener{
                         intent.putExtra("name", name);
                         intent.putExtra("email", account.name);
                         startActivity(intent);
+                        finish();
                     }
                 }
             } catch (OperationCanceledException oce) {
@@ -89,6 +90,8 @@ public class LoginActivity extends Activity implements OnClickListener{
             accountManager.getAuthToken(account, AUTH_TOKEN_TYPE, options, this, new OnTokenAcquired(), null);
         } else if (v.getId() == R.id.nothank_button) {
             startActivity(new Intent(this, MainActivity.class));
+            //Make MainActivity as the bottom activity of activity stack.
+            finish();
         }
     }
 

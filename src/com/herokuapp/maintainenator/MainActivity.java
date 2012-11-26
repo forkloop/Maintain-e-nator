@@ -29,7 +29,7 @@ public class MainActivity extends Activity implements OnClickListener{
         reportButton = (Button) findViewById(R.id.my_reports_button);
         reportButton.setOnClickListener(this);
 
-        ((Button) findViewById(R.id.view_button)).setOnClickListener(this);
+        //((Button) findViewById(R.id.view_button)).setOnClickListener(this);
 
         TextView welcomeView = (TextView) findViewById(R.id.welcome);
         Intent intent = getIntent();

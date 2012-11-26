@@ -15,14 +15,16 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     private static final String COLUMN_DESC = "description";
     private static final String COLUMN_LOCATION = "location";
     private static final String COLUMN_PHOTOS_PATH = "photos_path";
+    private static final String COLUMN_AUDIO_PATH = "audio_path";
 
     private static final String DATABASE_NAME = "maintainenator.db";
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 4;
 
     private static final String DATABASE_CREATE = "CREATE TABLE "
             + TABLE_NAME + "(" + COLUMN_DATE
             + " text, " + COLUMN_DESC + " text, " + COLUMN_LOCATION
-            + " text," + COLUMN_PHOTOS_PATH + " text);";
+            + " text," + COLUMN_PHOTOS_PATH + " text, "
+            + COLUMN_AUDIO_PATH + " text);";
 
     public DatabaseHandler(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -36,6 +38,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         values.put(COLUMN_DESC, history.getDescription());
         values.put(COLUMN_LOCATION, history.getLocation());
         values.put(COLUMN_PHOTOS_PATH, history.getPhotosPath());
+        values.put(COLUMN_AUDIO_PATH, history.getAudioPath());
 
         // Inserting Row
         db.insert(TABLE_NAME, null, values);
@@ -80,6 +83,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 history.setDescription(cursor.getString(1));
                 history.setLocation(cursor.getString(2));
                 history.setPhotosPath(cursor.getString(3));
+                history.setAudioPath(cursor.getString(4));
                 return history;
             }
         } finally {

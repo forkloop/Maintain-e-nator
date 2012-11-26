@@ -56,7 +56,7 @@ public class IndoorFormFragment extends Fragment implements OnItemSelectedListen
     private EditText extraLocation;
     private static int longClickedId;
     private int buildingSelectedTime;
-    private String[] photoArray;
+    private String[] photoAudioArray;
 
     //Audio
     private MediaPlayer mediaPlayer;
@@ -71,7 +71,8 @@ public class IndoorFormFragment extends Fragment implements OnItemSelectedListen
     public void onCreate (Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         buildingSelectedTime = 0;
-        photoArray = new String[MAX_PHOTO_NUM];
+        // Add ONE more entry for audio.
+        photoAudioArray = new String[MAX_PHOTO_NUM + 1];
         floorArray = new ArrayList<String>(HIGEST_FLOOR);
         floorArray.add("Base");
         for(int i=1; i<=HIGEST_FLOOR; i++) {
@@ -119,7 +120,7 @@ public class IndoorFormFragment extends Fragment implements OnItemSelectedListen
         floorSpinner.setOnItemSelectedListener(this);
 
         //Audio
-        recordButton = (Button) layout.findViewById(R.id.indoor_voice);
+        recordButton = (Button) layout.findViewById(R.id.indoor_audio);
         recordButton.setOnTouchListener(new ButtonTouchListener());
         audioView = (ImageView) layout.findViewById(R.id.indoor_audio_record);
         audioView.setOnLongClickListener(this);
@@ -169,11 +170,11 @@ public class IndoorFormFragment extends Fragment implements OnItemSelectedListen
 
     void setPhotoPath(int viewId, String path) {
         if (viewId == R.id.indoor_image_view1) {
-            photoArray[0] = path;
+            photoAudioArray[0] = path;
         } else if (viewId == R.id.indoor_image_view2) {
-            photoArray[1] = path;
+            photoAudioArray[1] = path;
         } else if (viewId == R.id.indoor_image_view3) {
-            photoArray[2] = path;
+            photoAudioArray[2] = path;
         }
     }
 
@@ -210,16 +211,17 @@ public class IndoorFormFragment extends Fragment implements OnItemSelectedListen
         StringBuilder sb = new StringBuilder();
         boolean first = true;
         for (int index=0; index<MAX_PHOTO_NUM; index++) {
-            if (photoArray[index] != null && !photoArray[index].isEmpty()) {
+            if (photoAudioArray[index] != null && !photoAudioArray[index].isEmpty()) {
                 if (first) {
                     first = false;
-                    sb.append(photoArray[index]);
+                    sb.append(photoAudioArray[index]);
                 } else {
                     sb.append(PHOTO_PATH_SEPARATOR);
-                    sb.append(photoArray[index]);
+                    sb.append(photoAudioArray[index]);
                 }
             }
         }
+        Log.d(TAG, sb.toString());
         return sb.toString();
     }
 
@@ -231,6 +233,7 @@ public class IndoorFormFragment extends Fragment implements OnItemSelectedListen
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             sendAudioFile = false;
+                            audioView.setImageBitmap(null);
                             audioView.setOnClickListener(null);
                             audioView.setClickable(false);
                         }
@@ -252,10 +255,10 @@ public class IndoorFormFragment extends Fragment implements OnItemSelectedListen
             if (action == MotionEvent.ACTION_DOWN) {
                 Log.d(TAG, "Start recording.");
                 mediaRecorder.setAudioSource(MediaRecorder.AudioSource.DEFAULT);
-                mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+                mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
                 mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
                 Date date = new Date();
-                audioFilePath = AUDIO_DIR + "audio-" + DATE_FORMAT.format(date) + ".3gp";
+                audioFilePath = AUDIO_DIR + "audio-" + DATE_FORMAT.format(date) + ".mp4";
                 mediaRecorder.setOutputFile(audioFilePath);
                 try {
                     mediaRecorder.prepare();
@@ -270,8 +273,9 @@ public class IndoorFormFragment extends Fragment implements OnItemSelectedListen
                 if (!audioView.isClickable()) {
                     audioView.setOnClickListener(new AudioPlayClickListener());
                 }
+                audioView.setImageResource(R.drawable.audio_record);
             }
-            // No more actions for following receivers
+            // No more actions for following receivers.
             return true;
         }
     }
@@ -301,7 +305,7 @@ public class IndoorFormFragment extends Fragment implements OnItemSelectedListen
             if (descriptionText.getText().toString().isEmpty() || roomText.getText().toString().isEmpty()) {
                 return false;
             }
-            if (photoArray[0] != null || photoArray[1] != null || photoArray[2] != null) {
+            if (photoAudioArray[0] != null || photoAudioArray[1] != null || photoAudioArray[2] != null) {
                 return true;
             }
             //TODO
@@ -313,12 +317,14 @@ public class IndoorFormFragment extends Fragment implements OnItemSelectedListen
         @Override
         public void onClick(View v) {
             if (checkData()) {
-                ((FormActivity) getActivity()).new UploadMultipartTask().execute(photoArray);
+                photoAudioArray[3] = audioFilePath;
+                ((FormActivity) getActivity()).new UploadMultipartTask().execute(photoAudioArray);
                 DatabaseHandler db = new DatabaseHandler(((FormActivity) getActivity()).getApplicationContext());
                 String location = buildingSpinner.getSelectedItem().toString() + ", " + floorSpinner.getSelectedItem().toString() + ", " + roomText.getText().toString();
                 String description = descriptionText.getText().toString() + ", " + extraLocation.getText().toString();;
                 History indoorReport = new History(description, location);
                 indoorReport.setPhotosPath(joinPhotoPath());
+                indoorReport.setAudioPath(audioFilePath);
                 db.addReport(indoorReport);
                 db.close();
                 Log.d(TAG, "Add indoor report to database " + indoorReport);
