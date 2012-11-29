@@ -194,6 +194,8 @@ public class FormActivity extends Activity implements LocationListener {
                 displayPhoto(filePath);
                 Log.d(getClass().getSimpleName(), "Gallery: display the picture.");
             }
+        } else {
+            super.onActivityResult(requestCode, resultCode, data);
         }
     }
 

@@ -36,6 +36,10 @@ public class MapViewActivity extends MapActivity {
     public void onPause() {
         super.onPause();
         myLocationOverlay.disableCompass();
+    }
+
+    @Override
+    public void onBackPressed() {
         GeoPoint point = itemizedOverlay.getDraggedPoint();
         if (point != null) {
             Log.d(TAG, "Set result " + point);
@@ -44,7 +48,7 @@ public class MapViewActivity extends MapActivity {
             intent.putExtra("long", point.getLongitudeE6());
             setResult(RESULT_OK, intent);
         }
-        finish();
+        super.onBackPressed();
     }
 
     @Override
