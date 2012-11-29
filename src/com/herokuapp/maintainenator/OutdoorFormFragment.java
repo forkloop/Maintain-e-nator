@@ -204,7 +204,6 @@ public class OutdoorFormFragment extends Fragment implements OnLongClickListener
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        //FIXME
         Log.d(TAG, "onActivityResult" + requestCode + ", " + resultCode);
         if (requestCode == MAP_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
             int latitude = data.getIntExtra("lat", 0);
