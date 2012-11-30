@@ -106,6 +106,10 @@ public class FormActivity extends Activity implements LocationListener {
     }
 
     @Override
+    public void onBackPressed() {
+    }
+
+    @Override
     protected void onStart() {
         super.onStart();
         Log.d(TAG, "reverse succeed? " + reverseGeoSucceed);

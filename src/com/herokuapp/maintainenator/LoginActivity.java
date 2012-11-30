@@ -16,6 +16,10 @@ import android.accounts.AccountManager;
 import android.accounts.AccountManagerCallback;
 import android.accounts.AccountManagerFuture;
 import android.accounts.OperationCanceledException;
+import android.animation.AnimatorInflater;
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -32,13 +36,24 @@ public class LoginActivity extends Activity implements OnClickListener{
     private AccountManager accountManager;
     private Account account;
 
+    private AnimatorSet animatorSet;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        ((Button) findViewById(R.id.login_button)).setOnClickListener(this);
-        ((Button) findViewById(R.id.nothank_button)).setOnClickListener(this);
+        final Button loginButton = (Button) findViewById(R.id.login_button);
+        loginButton.setOnClickListener(this);
+        final Button nothankButton = (Button) findViewById(R.id.nothank_button);
+        nothankButton.setOnClickListener(this);
+
+        animatorSet = new AnimatorSet();
+        AnimatorSet fadeinAnimator = (AnimatorSet) AnimatorInflater.loadAnimator(this, R.animator.fadein);
+        fadeinAnimator.setTarget(loginButton);
+        ValueAnimator animator = ObjectAnimator.ofFloat(nothankButton, "alpha", 0f, 1f);
+        animator.setDuration(500);
+        animatorSet.play(fadeinAnimator).with(animator);
 
         accountManager = AccountManager.get(this);
         Account[] accounts = accountManager.getAccountsByType("com.google");
@@ -53,7 +68,7 @@ public class LoginActivity extends Activity implements OnClickListener{
     @Override
     protected void onResume() {
         super.onResume();
-        // TODO implement the abstractaccountauthenticator
+        animatorSet.start();
     }
 
     private class OnTokenAcquired implements AccountManagerCallback<Bundle> {
