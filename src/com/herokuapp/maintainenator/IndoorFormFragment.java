@@ -12,7 +12,6 @@ import android.app.Fragment;
 import android.content.DialogInterface;
 import android.location.Location;
 import android.media.MediaPlayer;
-import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
@@ -32,6 +31,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.Toast;
+
+import com.herokuapp.maintainenator.utils.ExtAudioRecorder;
 
 public class IndoorFormFragment extends Fragment implements OnItemSelectedListener, OnLongClickListener {
 
@@ -59,13 +60,15 @@ public class IndoorFormFragment extends Fragment implements OnItemSelectedListen
     private String[] photoAudioArray;
 
     //Audio
+    private ExtAudioRecorder extAudioRecorder;
     private MediaPlayer mediaPlayer;
-    private MediaRecorder mediaRecorder;
     private Button recordButton;
     private ImageView audioView;
     private String audioFilePath;
     private boolean sendAudioFile;
     private AlertDialog removeAudioDialog;
+
+    private FormActivity parentActivity;
 
     @Override
     public void onCreate (Bundle savedInstanceState) {
@@ -78,20 +81,12 @@ public class IndoorFormFragment extends Fragment implements OnItemSelectedListen
         for(int i=1; i<=HIGEST_FLOOR; i++) {
             floorArray.add(i + "F");
         }
-        //Audio
-        mediaRecorder = new MediaRecorder();
-//        mediaRecorder.setAudioSource(MediaRecorder.AudioSource.DEFAULT);
-//        mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-//        mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-//        Date date = new Date();
-//        audioFilePath = AUDIO_DIR + "audio-" + DATE_FORMAT.format(date) + ".3gp";
-//        mediaRecorder.setOutputFile(audioFilePath);
+
+        parentActivity = (FormActivity) getActivity();
     }
 
     @Override
     public void onDestroy() {
-        mediaRecorder.release();
-        mediaRecorder = null;
         super.onDestroy();
     }
 
@@ -253,22 +248,16 @@ public class IndoorFormFragment extends Fragment implements OnItemSelectedListen
         public boolean onTouch(View v, MotionEvent event) {
             int action = event.getAction();
             if (action == MotionEvent.ACTION_DOWN) {
-                Log.d(TAG, "Start recording.");
-                mediaRecorder.setAudioSource(MediaRecorder.AudioSource.DEFAULT);
-                mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
-                mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+                Log.d(TAG, "Start recording...");
                 Date date = new Date();
-                audioFilePath = AUDIO_DIR + "audio-" + DATE_FORMAT.format(date) + ".mp4";
-                mediaRecorder.setOutputFile(audioFilePath);
-                try {
-                    mediaRecorder.prepare();
-                    mediaRecorder.start();
-                } catch (IOException ioe) {
-                    Log.e(TAG, ioe.getMessage());
-                }
+                audioFilePath = AUDIO_DIR + "audio-" + DATE_FORMAT.format(date) + ".wav";
+                extAudioRecorder = parentActivity.getAudioRecorder();
+                extAudioRecorder.setOutputFile(audioFilePath);
+                extAudioRecorder.prepare();
+                extAudioRecorder.start();
             } else if (action == MotionEvent.ACTION_UP) {
-                Log.d(TAG, "Stop recording.");
-                mediaRecorder.stop();
+                Log.d(TAG, "Stop recording...");
+                extAudioRecorder.stop();
                 sendAudioFile = true;
                 if (!audioView.isClickable()) {
                     audioView.setOnClickListener(new AudioPlayClickListener());
@@ -290,6 +279,7 @@ public class IndoorFormFragment extends Fragment implements OnItemSelectedListen
                     mediaPlayer.prepare();
                     mediaPlayer.start();
                 } catch (IOException ioe) {
+                    ioe.printStackTrace();
                     Log.d(TAG, ioe.getMessage());
                 }
             } else {

@@ -1,9 +1,10 @@
 package com.herokuapp.maintainenator.utils;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.RandomAccessFile;
 
 import android.media.AudioFormat;
 import android.media.AudioRecord;
@@ -11,71 +12,91 @@ import android.media.MediaRecorder.AudioSource;
 import android.util.Log;
 
 /**
- * Based on @link
+ * @link
  */
 public class ExtAudioRecorder {
 
     private static final String TAG = "ExtAudioRecorder";
 
-    private final short nChannels = 1;
+    private final short nChannels = 2;
     private final int sRate = 44100;
     private final short bSamples = 16;
-    // Recorder used for uncompressed recording
+
     private AudioRecord audioRecorder = null;
-
-    // Output file path
     private String filePath = null;
-
-    // File writer (only in uncompressed mode)
-    private RandomAccessFile randomAccessWriter;
-
-    private int payload;
+    private long payload;
     private int bufSize;
-    private byte[] buffer;
     private boolean isRecording;
 
     public ExtAudioRecorder() {
-        bufSize = AudioRecord.getMinBufferSize(44100, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT);
-        audioRecorder = new AudioRecord(AudioSource.DEFAULT, 44100, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, bufSize);
+        bufSize = AudioRecord.getMinBufferSize(sRate, AudioFormat.CHANNEL_IN_STEREO, AudioFormat.ENCODING_PCM_16BIT);
+        Log.d(TAG, "bufSize: " + bufSize);
+        audioRecorder = new AudioRecord(AudioSource.DEFAULT, sRate, AudioFormat.CHANNEL_IN_STEREO,
+                AudioFormat.ENCODING_PCM_16BIT, bufSize);
     }
 
     /**
-     * Sets output file path, call directly after construction/reset.
-     * @param output file path
      */
     public void setOutputFile(String argPath) {
         filePath = argPath;
     }
 
     /**
-     * Write WAV file header.
      * For WAV header format, see @link https://ccrma.stanford.edu/courses/422/projects/WaveFormat/
      */
     public void prepare() {
-        if (filePath != null) {
-            try {
-                randomAccessWriter = new RandomAccessFile(filePath, "rw");
-                // Set file length to 0, to prevent unexpected behavior in case the file already existed
-                randomAccessWriter.setLength(0);
-                randomAccessWriter.writeBytes("RIFF");
-                // Final file size not known yet, write 0
-                randomAccessWriter.writeInt(0); 
-                randomAccessWriter.writeBytes("WAVE");
-                randomAccessWriter.writeBytes("fmt ");
-                randomAccessWriter.writeInt(Integer.reverseBytes(16)); // Sub-chunk size, 16 for PCM
-                randomAccessWriter.writeShort(Short.reverseBytes((short) 1)); // AudioFormat, 1 for PCM
-                randomAccessWriter.writeShort(Short.reverseBytes(nChannels));// Number of channels, 1 for mono, 2 for stereo
-                randomAccessWriter.writeInt(Integer.reverseBytes(sRate)); // Sample rate
-                randomAccessWriter.writeInt(Integer.reverseBytes(sRate*bSamples*nChannels/8)); // Byte rate, SampleRate*NumberOfChannels*BitsPerSample/8
-                randomAccessWriter.writeShort(Short.reverseBytes((short)(nChannels*bSamples/8))); // Block align, NumberOfChannels*BitsPerSample/8
-                randomAccessWriter.writeShort(Short.reverseBytes(bSamples)); // Bits per sample
-                randomAccessWriter.writeBytes("data");
-                randomAccessWriter.writeInt(0); // Data chunk size not known yet, write 0
-            } catch (IOException ioe) {
-                Log.e(TAG, ioe.getMessage());
-            }
-            Log.d(TAG, "Uncompressed recording prepared.");
-        }
+        Log.d(TAG, "Raw recording prepared.");
+    }
+
+    private void writeHeader(FileOutputStream out) throws IOException {
+        int bRate = sRate * bSamples * nChannels / 8;
+        long payload2 = payload + 36;
+        byte[] header = new byte[44];
+        header[0] = 'R';
+        header[1] = 'I';
+        header[2] = 'F';
+        header[3] = 'F';
+        header[4] = (byte) (payload2 & 0xff);
+        header[5] = (byte) ((payload2 >> 8) & 0xff);
+        header[6] = (byte) ((payload2 >> 16) & 0xff);
+        header[7] = (byte) ((payload2 >> 24) & 0xff);
+        header[8] = 'W';
+        header[9] = 'A';
+        header[10] = 'V';
+        header[11] = 'E';
+        header[12] = 'f';
+        header[13] = 'm';
+        header[14] = 't';
+        header[15] = ' ';
+        header[16] = 16;
+        header[17] = 0;
+        header[18] = 0;
+        header[19] = 0;
+        header[20] = 1;
+        header[21] = 0;
+        header[22] = (byte) nChannels;
+        header[23] = 0;
+        header[24] = (byte) (sRate & 0xff);
+        header[25] = (byte) ((sRate >> 8) & 0xff);
+        header[26] = (byte) ((sRate >> 16) & 0xff);
+        header[27] = (byte) ((sRate >> 24) & 0xff);
+        header[28] = (byte) (bRate & 0xff);
+        header[29] = (byte) ((bRate >> 8) & 0xff);
+        header[30] = (byte) ((bRate >> 16) & 0xff);
+        header[31] = (byte) ((bRate >> 24) & 0xff);
+        header[32] = (byte) (nChannels * bSamples / 8);
+        header[33] = 0;
+        header[34] = bSamples;
+        header[35] = 0;
+        header[36] = 'd';
+        header[37] = 'a';
+        header[38] = 't';
+        header[39] = 'a';
+        header[40] = (byte) (payload & 0xff);
+        header[41] = (byte) ((payload >> 8) & 0xff);
+        header[42] = (byte) ((payload >> 16) & 0xff);
+        header[43] = (byte) ((payload >> 24) & 0xff);
+        out.write(header, 0, 44);
     }
 
     /**
@@ -89,7 +110,6 @@ public class ExtAudioRecorder {
      */
     public void start() {
         payload = 0;
-        buffer = new byte[bufSize];
         isRecording = true;
         audioRecorder.startRecording();
         new Thread (new Runnable() {
@@ -97,7 +117,7 @@ public class ExtAudioRecorder {
             public void run() {
                 FileOutputStream out = null;
                 try {
-                    out = new FileOutputStream(filePath);
+                    out = new FileOutputStream(filePath + ".tmp");
                 } catch (FileNotFoundException fnfe) {
                     isRecording = false;
                     audioRecorder.stop();
@@ -105,12 +125,13 @@ public class ExtAudioRecorder {
                 }
                 if (out != null) {
                     int status = 0;
+                    byte[] buffer = new byte[bufSize];
                     while (isRecording) {
-                        status = audioRecorder.read(buffer, 0, bufSize);
+                    status = audioRecorder.read(buffer, 0, bufSize);
                         if (status != AudioRecord.ERROR_INVALID_OPERATION) {
                             try {
-                                out.write(buffer);
-                                payload += bufSize;
+                                out.write(buffer, 0, status);
+                                //payload += bufSize;
                             } catch (IOException ioe) {
                                 ioe.printStackTrace();
                             }
@@ -134,28 +155,37 @@ public class ExtAudioRecorder {
         if (isRecording) {
             isRecording = false;
             audioRecorder.stop();
-            try {
-                randomAccessWriter.seek(4);
-                randomAccessWriter.writeInt(Integer.reverseBytes(36 + payload));
-                randomAccessWriter.seek(40);
-                randomAccessWriter.writeInt(Integer.reverseBytes(payload));
-                randomAccessWriter.close();
-            } catch (IOException ioe) {
-                Log.e(TAG, ioe.getMessage());
+            copyWAVFile();
+            File tmpFile = new File(filePath + ".tmp");
+            tmpFile.delete();
+        }
+    }
+
+    private void copyWAVFile() {
+        FileInputStream in = null;
+        FileOutputStream out = null;
+        payload = 0;
+        try {
+            in = new FileInputStream(filePath + ".tmp");
+            out = new FileOutputStream(filePath);
+            payload = in.getChannel().size();
+            Log.d(TAG, "payload: " + payload);
+            writeHeader(out);
+            byte[] buffer = new byte[bufSize];
+            int status = 0;
+            while ((status = in.read(buffer, 0, bufSize)) != -1) {
+                out.write(buffer, 0, status);
             }
+            in.close();
+            out.close();
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
         }
     }
 
     /**
      */
     public void reset() {
-        //TODO
-    }
-
-    /**
-     */
-    private short getLittleEndianShort(byte byte1, byte byte2) {
-        return (short)(byte1 | (byte2 << 8));
     }
 
 }//:~

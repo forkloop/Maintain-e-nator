@@ -1,7 +1,6 @@
 package com.herokuapp.maintainenator;
 
 import java.io.File;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -12,7 +11,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.location.Location;
 import android.media.MediaPlayer;
-import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
@@ -30,6 +28,7 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.herokuapp.maintainenator.FormActivity.AudioPlayListener;
+import com.herokuapp.maintainenator.utils.ExtAudioRecorder;
 
 public class OutdoorFormFragment extends Fragment implements OnLongClickListener, OnClickListener {
 
@@ -52,8 +51,8 @@ public class OutdoorFormFragment extends Fragment implements OnLongClickListener
     private int longClickedId;
 
     // Audio.
+    private ExtAudioRecorder extAudioRecorder;
     private MediaPlayer mediaPlayer;
-    private MediaRecorder mediaRecorder;
     private Button recordButton;
     private ImageView audioView;
     private String audioFilePath;
@@ -68,14 +67,11 @@ public class OutdoorFormFragment extends Fragment implements OnLongClickListener
 
         parentActivity = (FormActivity) getActivity();
         photoAudioArray = new String[MAX_PHOTO_NUM + 1];
-
-        mediaRecorder = new MediaRecorder();
     }
 
     @Override
     public void onDestroy() {
-        mediaRecorder.release();
-        mediaRecorder = null;
+        extAudioRecorder.release();
         super.onDestroy();
     }
 
@@ -249,25 +245,17 @@ public class OutdoorFormFragment extends Fragment implements OnLongClickListener
             int action = event.getAction();
             if (action == MotionEvent.ACTION_DOWN) {
                 Log.d(TAG, "Start recording...");
-                mediaRecorder.setAudioSource(MediaRecorder.AudioSource.DEFAULT);
-                mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
-                mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
                 Date date = new Date();
-                audioFilePath = AUDIO_DIR + "audio-" + DATE_FORMAT.format(date) + ".mp4";
-                mediaRecorder.setOutputFile(audioFilePath);
-                try {
-                    mediaRecorder.prepare();
-                    mediaRecorder.start();
-                } catch (IOException ioe) {
-                    Log.e(TAG, ioe.getMessage());
-                }
+                audioFilePath = AUDIO_DIR + "audio-" + DATE_FORMAT.format(date) + ".wav";
+                extAudioRecorder = parentActivity.getAudioRecorder();
+                extAudioRecorder.setOutputFile(audioFilePath);
+                extAudioRecorder.prepare();
+                extAudioRecorder.start();
             } else if (action == MotionEvent.ACTION_UP) {
                 Log.d(TAG, "Stop recording...");
-                mediaRecorder.stop();
+                extAudioRecorder.stop();
                 sendAudioFile = true;
-                if (!audioView.isClickable()) {
-                    audioView.setOnClickListener(new AudioPlayListener(mediaPlayer, audioFilePath));
-                }
+                audioView.setOnClickListener(new AudioPlayListener(mediaPlayer, audioFilePath));
                 audioView.setImageResource(R.drawable.audio_record);
             }
             // No more actions for following receivers.

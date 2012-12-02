@@ -15,6 +15,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.herokuapp.maintainenator.utils.ExtAudioRecorder;
+
 import android.app.ActionBar;
 import android.app.ActionBar.Tab;
 import android.app.Activity;
@@ -80,6 +82,10 @@ public class FormActivity extends Activity implements LocationListener {
     private String cachedLocation;
     private boolean networkDisconnectedToast = true;
     private boolean reverseGeoSucceed = false;
+
+    //Audio
+    private ExtAudioRecorder extAudioRecorder;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -103,10 +109,22 @@ public class FormActivity extends Activity implements LocationListener {
 
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+
+        extAudioRecorder = new ExtAudioRecorder();
+    }
+
+    @Override
+    public void onDestroy() {
+        extAudioRecorder.release();
+        super.onDestroy();
     }
 
     @Override
     public void onBackPressed() {
+    }
+
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
     }
 
     @Override
@@ -203,6 +221,10 @@ public class FormActivity extends Activity implements LocationListener {
         }
     }
 
+    ExtAudioRecorder getAudioRecorder() {
+        return extAudioRecorder;
+    }
+
     // Called by FormTabListener
     void setIndoorFormFragment(Fragment fragment) {
         indoorFormFragment = (IndoorFormFragment) fragment;
@@ -224,7 +246,7 @@ public class FormActivity extends Activity implements LocationListener {
         Log.d(TAG, "Display photo: " + photoURI);
         Tab tab = actionBar.getSelectedTab();
         Bitmap bmp = BitmapFactory.decodeFile(photoURI);
-        Bitmap photo = Bitmap.createScaledBitmap(bmp, 200, 140, true);
+        Bitmap photo = Bitmap.createScaledBitmap(bmp, 200, 140, false);
         if (tab.getTag().equals("indoor")) {
             int longClickedId = IndoorFormFragment.getLongClickedId();
             ImageView imageView = (ImageView) findViewById(longClickedId);
@@ -301,6 +323,9 @@ public class FormActivity extends Activity implements LocationListener {
         }
     }
 
+    /**
+     * Popout a dialog to display the photo in fullsize.
+     */
     private class PhotoClickListener implements OnClickListener {
 
         private String photoURI;
