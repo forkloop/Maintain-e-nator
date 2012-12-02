@@ -616,7 +616,7 @@ public class FormActivity extends Activity implements LocationListener {
                     out.writeBytes(TWO_HYPHENS + BOUNDARY + END);
                     File audio = new File(params[3]);
                     out.writeBytes("Content-Disposition: form-data; name=\"audio\"; filename=\"" + audio.getName() + "\"" + END);
-                    out.writeBytes("Content-type: audio/mp4" + END + END);
+                    out.writeBytes("Content-type: audio/wav" + END + END);
                     FileInputStream fileInputStream = new FileInputStream(params[3]);
                     byte[] fileBuffer = new byte[1024];
                     int len = 0;

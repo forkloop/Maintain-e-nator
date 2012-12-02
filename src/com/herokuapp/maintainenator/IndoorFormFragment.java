@@ -12,6 +12,7 @@ import android.app.Fragment;
 import android.content.DialogInterface;
 import android.location.Location;
 import android.media.MediaPlayer;
+import android.media.MediaPlayer.OnCompletionListener;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
@@ -87,6 +88,9 @@ public class IndoorFormFragment extends Fragment implements OnItemSelectedListen
 
     @Override
     public void onDestroy() {
+        if (mediaPlayer != null) {
+            mediaPlayer.release();
+        }
         super.onDestroy();
     }
 
@@ -272,8 +276,16 @@ public class IndoorFormFragment extends Fragment implements OnItemSelectedListen
     private class AudioPlayClickListener implements OnClickListener {
         @Override
         public void onClick(View v) {
-            if (mediaPlayer == null) {
-                mediaPlayer = new MediaPlayer();
+            if (sendAudioFile) {
+                if (mediaPlayer == null) {
+                    mediaPlayer = new MediaPlayer();
+                    mediaPlayer.setOnCompletionListener(new OnCompletionListener() {
+                        @Override
+                        public void onCompletion(MediaPlayer mp) {
+                            mp.reset();
+                        }
+                    });
+                }
                 try {
                     mediaPlayer.setDataSource(audioFilePath);
                     mediaPlayer.prepare();
@@ -282,9 +294,6 @@ public class IndoorFormFragment extends Fragment implements OnItemSelectedListen
                     ioe.printStackTrace();
                     Log.d(TAG, ioe.getMessage());
                 }
-            } else {
-                mediaPlayer.release();
-                mediaPlayer = null;
             }
         }
     }
