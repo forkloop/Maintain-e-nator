@@ -71,7 +71,6 @@ public class OutdoorFormFragment extends Fragment implements OnLongClickListener
 
     @Override
     public void onDestroy() {
-        extAudioRecorder.release();
         super.onDestroy();
     }
 
