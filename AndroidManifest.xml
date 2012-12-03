@@ -28,7 +28,6 @@
 
         <activity
             android:name=".MainActivity"
-            android:launchMode="singleTop"
             android:theme="@android:style/Theme.Light.NoTitleBar" >
         </activity>
         <activity
