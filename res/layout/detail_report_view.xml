@@ -12,20 +12,21 @@
     android:layout_height="48dp"
     android:layout_width="match_parent"
     android:text="@string/app_name"
-    android:textSize="20sp"
-    android:background="#99CC00"
+    android:textSize="18sp"
+    android:background="#FFBB33"
     android:textColor="#FFFFFF"
-    android:layout_marginTop="20dp"
+    android:gravity="center_vertical|center_horizontal"
     />
 
 <TextView
     android:id="@+id/detail_report_location"
-    android:layout_height="48dp"
+    android:layout_height="40dp"
     android:layout_width="match_parent"
     android:layout_marginTop="10dp"
-    android:textSize="20sp"
+    android:textSize="16sp"
     android:background="#99CC00"
     android:textColor="#FFFFFF"
+    android:gravity="center_horizontal"
     android:layout_below="@id/detail_report_description"
     />
 
@@ -44,13 +45,14 @@
     </LinearLayout>
 </HorizontalScrollView>
 
-<TextView
+<ImageView
     android:id="@+id/detail_report_audio"
-    android:layout_height="48dp"
+    android:layout_height="50dp"
     android:layout_width="match_parent"
     android:layout_marginTop="10dp"
-    android:background="#99CC00"
-    android:textColor="#FFFFFF"
+    android:background="#33B5E5"
+    android:src="@drawable/audio_record"
+    android:contentDescription="@string/audio_record"
     android:layout_below="@id/detail_report_photos"
     />
 
