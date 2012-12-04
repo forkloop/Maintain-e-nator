@@ -29,26 +29,21 @@
     <LinearLayout
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
-        android:layout_marginTop="5dp"
         android:orientation="horizontal" >
-                <TextView
-                    android:text="@string/floor"
-                    android:layout_height="wrap_content"
+                <ImageView
+                    android:layout_height="match_parent"
                     android:layout_width="0dp"
-                    android:gravity="center_vertical|center_horizontal"
-                    android:textStyle="bold"
+                    android:src="@drawable/stair"
                     android:layout_weight="0.2" />
                 <Spinner
                     android:id="@+id/floor_spinner"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="0.3" />
-                <TextView
-                    android:text="@string/room"
-                    android:layout_height="wrap_content"
+                <ImageView
+                    android:layout_height="match_parent"
                     android:layout_width="0dp"
-                    android:gravity="center_vertical|center_horizontal"
-                    android:textStyle="bold"
+                    android:src="@drawable/room"
                     android:layout_weight="0.2" />
                 <EditText
                     android:id="@+id/room_text"
@@ -62,7 +57,6 @@
         android:id="@+id/indoor_location_optional"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
         android:textSize="16sp"
         android:hint="@string/location_optional" />
 

@@ -34,6 +34,7 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.herokuapp.maintainenator.utils.ExtAudioRecorder;
+import com.herokuapp.maintainenator.utils.ImageTextAdapter;
 
 public class IndoorFormFragment extends Fragment implements OnItemSelectedListener, OnLongClickListener {
 
@@ -46,9 +47,9 @@ public class IndoorFormFragment extends Fragment implements OnItemSelectedListen
 
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyyMMddHHmmss");
 
-    private static final int HIGEST_FLOOR = 5;
+    private static final int HIGEST_FLOOR = 7;
     private static final int MAX_PHOTO_NUM = 3;
-    private static final int[] FLOOR = {4, 5, 3};
+    private static final int[] FLOOR = {4, 7, 3, 5};
     private List<String> floorArray;
     private Spinner buildingSpinner;
     private Spinner floorSpinner;
@@ -111,9 +112,7 @@ public class IndoorFormFragment extends Fragment implements OnItemSelectedListen
         imageView.setOnLongClickListener(this);
         buildingSpinner = (Spinner) layout.findViewById(R.id.building_spinner);
         buildingSpinner.setOnItemSelectedListener(this);
-        ArrayAdapter<CharSequence> buildingAdapter = ArrayAdapter.createFromResource(getActivity(), R.array.buildings, android.R.layout.simple_spinner_item);
-        buildingAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        buildingSpinner.setAdapter(buildingAdapter);
+        buildingSpinner.setAdapter(new ImageTextAdapter(getActivity(), R.layout.building_row));
 
         floorSpinner = (Spinner) layout.findViewById(R.id.floor_spinner);
         floorSpinner.setOnItemSelectedListener(this);

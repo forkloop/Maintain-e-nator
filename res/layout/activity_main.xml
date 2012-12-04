@@ -41,26 +41,28 @@
 
         <Button
             android:id="@+id/create_button"
-            android:layout_width="wrap_content"
-            android:layout_height="48dp"
+            android:layout_width="120dp"
+            android:layout_height="wrap_content"
             android:text="@string/create_button_text"
-            android:background="#33B5E5"
+            android:background="#FFFFFF"
             android:layout_marginRight="10dp"
             android:paddingLeft="5dp"
             android:paddingRight="5dp"
-            android:textColor="#FFFFFF"
-            android:textSize="24sp" />
+            android:textColor="#000000"
+            android:drawableTop="@drawable/create_new"
+            android:textSize="16sp" />
 
         <Button
             android:id="@+id/my_reports_button"
-            android:layout_width="wrap_content"
-            android:layout_height="48dp"
+            android:layout_width="120dp"
+            android:layout_height="wrap_content"
             android:text="@string/my_reports_button_text"
-            android:background="#33B5E5"
+            android:background="#FFFFFF"
             android:paddingLeft="5dp"
             android:paddingRight="5dp"
-            android:textColor="#FFFFFF"
-            android:textSize="24sp"
+            android:textColor="#000000"
+            android:drawableTop="@drawable/collection"
+            android:textSize="16sp"
             />
     </LinearLayout>
 
@@ -71,27 +73,29 @@
         android:orientation="horizontal">
         <Button
             android:id="@+id/settings_button"
-            android:layout_width="wrap_content"
-            android:layout_height="48dp"
+            android:layout_width="120dp"
+            android:layout_height="wrap_content"
             android:text="@string/settings_button_text"
-            android:background="#33B5E5"
+            android:background="#FFFFFF"
             android:layout_marginRight="10dp"
             android:paddingLeft="5dp"
             android:paddingRight="5dp"
-            android:textColor="#FFFFFF"
-            android:textSize="24sp"
+            android:textColor="#000000"
+            android:drawableTop="@drawable/settings"
+            android:textSize="16sp"
             />
 
         <Button
             android:id="@+id/view_button"
-            android:layout_width="wrap_content"
-            android:layout_height="48dp"
+            android:layout_width="120dp"
+            android:layout_height="wrap_content"
             android:text="@string/view_button_text"
-            android:background="#33B5E5"
+            android:background="#FFFFFF"
             android:paddingLeft="5dp"
             android:paddingRight="5dp"
-            android:textColor="#FFFFFF"
-            android:textSize="24sp"
+            android:textColor="#000000"
+            android:drawableTop="@drawable/dev"
+            android:textSize="16sp"
             />
     </LinearLayout>
 </LinearLayout>
