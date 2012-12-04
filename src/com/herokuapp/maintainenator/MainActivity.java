@@ -17,6 +17,7 @@ import android.widget.TextView;
 
 public class MainActivity extends Activity implements OnClickListener{
 
+    private static final long SLIDE_DURATION = 600;
     private Button settingsButton;
     private Button createButton;
     private Button reportButton;
@@ -75,7 +76,7 @@ public class MainActivity extends Activity implements OnClickListener{
         int viewId = v.getId();
         if (viewId != R.id.view_button) {
             animatorSet.addListener(new ClickAnimatorListener(viewId, this));
-            animatorSet.setDuration(1000);
+            animatorSet.setDuration(SLIDE_DURATION);
             animatorSet.start();
         }
         /*

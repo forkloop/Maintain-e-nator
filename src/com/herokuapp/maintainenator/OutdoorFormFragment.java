@@ -255,7 +255,7 @@ public class OutdoorFormFragment extends Fragment implements OnLongClickListener
                 extAudioRecorder.stop();
                 sendAudioFile = true;
                 audioView.setOnClickListener(new AudioPlayListener(mediaPlayer, audioFilePath));
-                audioView.setImageResource(R.drawable.audio_record);
+                audioView.setImageResource(R.drawable.audio_record_icon);
             }
             // No more actions for following receivers.
             return true;

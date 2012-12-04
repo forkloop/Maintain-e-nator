@@ -265,7 +265,7 @@ public class IndoorFormFragment extends Fragment implements OnItemSelectedListen
                 if (!audioView.isClickable()) {
                     audioView.setOnClickListener(new AudioPlayClickListener());
                 }
-                audioView.setImageResource(R.drawable.audio_record);
+                audioView.setImageResource(R.drawable.audio_record_icon);
             }
             // No more actions for following receivers.
             return true;
