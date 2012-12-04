@@ -3,9 +3,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:alpha="1"
-    android:background="@drawable/guernsey"
+    android:background="@drawable/login_bg"
     android:orientation="vertical" >
-
+<!--
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -16,17 +16,17 @@
         android:text="@string/main_heading"
         android:textColor="#FFFFFF"
         android:textSize="36sp" />
-
+ -->
     <Button
         android:id="@+id/login_button"
         android:text="@string/login_button"
         android:layout_width="170dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="260dp"
         android:layout_gravity="center_horizontal"
         android:padding="10dp"
-        android:background="#4D90FE"
-        android:alpha="0"
+        android:background="@drawable/blue_round_button"
+        android:alpha="1"
         android:textSize="18sp"
         android:textStyle="bold"
         android:textColor="#FFFFFF"
@@ -40,8 +40,8 @@
         android:layout_marginTop="20dp"
         android:layout_gravity="center_horizontal"
         android:padding="10dp"
-        android:background="#FF4444"
-        android:alpha="0"
+        android:background="@drawable/green_round_button"
+        android:alpha="1"
         android:textSize="18sp"
         android:textStyle="bold"
         android:textColor="#FFFFFF"

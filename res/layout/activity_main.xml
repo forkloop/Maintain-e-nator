@@ -5,6 +5,7 @@
     android:paddingLeft="16dp"
     android:paddingRight="16dp"
     android:orientation="vertical"
+    android:background="#FFFFFF"
     android:animateLayoutChanges="true" >
 
     <TextView
@@ -22,6 +23,7 @@
         android:paddingRight="10dp"
         android:textColor="#FFFFFF"/>
 
+    <!--
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="48dp"
@@ -33,6 +35,15 @@
         android:background="#EEEEEE"
         android:textSize="36sp"
         android:textColor="#99CC00"/>
+    -->
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:src="@drawable/logo_heading"
+        android:layout_marginTop="30dp"
+        android:layout_marginBottom="20dp"
+        />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -44,11 +55,13 @@
             android:layout_width="120dp"
             android:layout_height="wrap_content"
             android:text="@string/create_button_text"
-            android:background="#FFFFFF"
+            android:background="@color/darker_blue"
             android:layout_marginRight="10dp"
             android:paddingLeft="5dp"
             android:paddingRight="5dp"
-            android:textColor="#000000"
+            android:paddingTop="10dp"
+            android:paddingBottom="6dp"
+            android:textColor="#FFFFFF"
             android:drawableTop="@drawable/create_new"
             android:textSize="16sp" />
 
@@ -57,10 +70,12 @@
             android:layout_width="120dp"
             android:layout_height="wrap_content"
             android:text="@string/my_reports_button_text"
-            android:background="#FFFFFF"
+            android:background="#99CC00"
             android:paddingLeft="5dp"
             android:paddingRight="5dp"
-            android:textColor="#000000"
+            android:paddingTop="10dp"
+            android:paddingBottom="6dp"
+            android:textColor="#FFFFFF"
             android:drawableTop="@drawable/collection"
             android:textSize="16sp"
             />
@@ -76,11 +91,13 @@
             android:layout_width="120dp"
             android:layout_height="wrap_content"
             android:text="@string/settings_button_text"
-            android:background="#FFFFFF"
+            android:background="#AA66CC"
             android:layout_marginRight="10dp"
             android:paddingLeft="5dp"
             android:paddingRight="5dp"
-            android:textColor="#000000"
+            android:paddingTop="10dp"
+            android:paddingBottom="6dp"
+            android:textColor="#FFFFFF"
             android:drawableTop="@drawable/settings"
             android:textSize="16sp"
             />
@@ -90,10 +107,12 @@
             android:layout_width="120dp"
             android:layout_height="wrap_content"
             android:text="@string/view_button_text"
-            android:background="#FFFFFF"
+            android:background="#FFBB33"
             android:paddingLeft="5dp"
             android:paddingRight="5dp"
-            android:textColor="#000000"
+            android:paddingTop="10dp"
+            android:paddingBottom="6dp"
+            android:textColor="#FFFFFF"
             android:drawableTop="@drawable/dev"
             android:textSize="16sp"
             />

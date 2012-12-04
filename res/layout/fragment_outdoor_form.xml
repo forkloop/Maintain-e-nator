@@ -6,25 +6,6 @@
     android:paddingLeft="16dp"
     android:paddingRight="16dp" >
 
-<!--
-    <TextView
-        android:id="@+id/bssid"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textColor="#FFFFFF"
-        android:gravity="center_horizontal|center_vertical"
-        android:background="#19AD23" />
-
-    <TextView
-        android:id="@+id/path"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textColor="#FFFFFF"
-        android:gravity="center_horizontal|center_vertical"
-        android:background="#AA66CC"
-     />
- -->
-
     <EditText
         android:id="@+id/outdoor_description"
         android:layout_width="match_parent"
@@ -48,7 +29,10 @@
             android:layout_alignParentRight="true"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:paddingLeft="6dp"
+            android:paddingRight="6dp"
             android:background="#FF4444"
+            android:drawableLeft="@drawable/map_icon"
             android:textColor="#FFFFFF"
             android:textStyle="bold"
             android:gravity="center_vertical|center_horizontal"
