@@ -300,7 +300,9 @@ public class IndoorFormFragment extends Fragment implements OnItemSelectedListen
     }
 
     private class IndoorSubmitClickListener implements OnClickListener {
-
+        /*
+         * Include description, building, floor, room.
+         * */
         boolean checkData() {
             if (descriptionText.getText().toString().isEmpty() || roomText.getText().toString().isEmpty()) {
                 return false;
@@ -309,7 +311,7 @@ public class IndoorFormFragment extends Fragment implements OnItemSelectedListen
                 return true;
             }
             //TODO
-//            ((FormActivity) getActivity()).buildAlertDialog().show();
+           //((FormActivity) getActivity()).buildAlertDialog().show();
             Log.d(getClass().getSimpleName(), "returning...");
             return true;
         }
@@ -321,7 +323,11 @@ public class IndoorFormFragment extends Fragment implements OnItemSelectedListen
                 ((FormActivity) getActivity()).new UploadMultipartTask().execute(photoAudioArray);
                 DatabaseHandler db = new DatabaseHandler(((FormActivity) getActivity()).getApplicationContext());
                 String location = buildingSpinner.getSelectedItem().toString() + ", " + floorSpinner.getSelectedItem().toString() + ", " + roomText.getText().toString();
-                String description = descriptionText.getText().toString() + ", " + extraLocation.getText().toString();;
+                String extraLocationString = extraLocation.getText().toString();
+                if (!extraLocationString.isEmpty()) {
+                    location += (", " + extraLocationString);
+                }
+                String description = descriptionText.getText().toString();
                 History indoorReport = new History(description, location);
                 indoorReport.setPhotosPath(joinPhotoPath());
                 indoorReport.setAudioPath(audioFilePath);
