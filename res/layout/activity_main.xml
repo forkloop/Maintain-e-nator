@@ -23,26 +23,13 @@
         android:paddingRight="10dp"
         android:textColor="#FFFFFF"/>
 
-    <!--
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="48dp"
-        android:text="@string/main_heading"
-        android:layout_marginTop="40dp"
-        android:layout_marginBottom="20dp"
-        android:paddingLeft="4dp"
-        android:paddingRight="3dp"
-        android:background="#EEEEEE"
-        android:textSize="36sp"
-        android:textColor="#99CC00"/>
-    -->
-
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:src="@drawable/logo_heading"
         android:layout_marginTop="30dp"
         android:layout_marginBottom="20dp"
+        android:contentDescription="@string/app_name"
         />
 
     <LinearLayout
@@ -70,7 +57,7 @@
             android:layout_width="120dp"
             android:layout_height="wrap_content"
             android:text="@string/my_reports_button_text"
-            android:background="#99CC00"
+            android:background="@color/darker_green"
             android:paddingLeft="5dp"
             android:paddingRight="5dp"
             android:paddingTop="10dp"
@@ -91,7 +78,7 @@
             android:layout_width="120dp"
             android:layout_height="wrap_content"
             android:text="@string/settings_button_text"
-            android:background="#AA66CC"
+            android:background="@color/darker_violet"
             android:layout_marginRight="10dp"
             android:paddingLeft="5dp"
             android:paddingRight="5dp"
@@ -107,7 +94,7 @@
             android:layout_width="120dp"
             android:layout_height="wrap_content"
             android:text="@string/about_button_text"
-            android:background="#FFBB33"
+            android:background="@color/darker_orange"
             android:paddingLeft="5dp"
             android:paddingRight="5dp"
             android:paddingTop="10dp"

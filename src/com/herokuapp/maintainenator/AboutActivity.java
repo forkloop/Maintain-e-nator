@@ -10,8 +10,9 @@ import android.widget.TextView;
 public class AboutActivity extends Activity {
 
     private static final String INFORMATION = 
-            "Copyright 2012 Maintain-e-nator group.\n" +
+            "Copyright \u00a9 2012 Maintain-e-nator group.\n" +
             "MIT Licensed.\n" +
+            "Version 1.0.\n\n" +
             "Xin Liu (forkloop@gmail.com)\n" +
             "Juehui Zhang (juehuizh@gmail.com)\n" +
             "John Longanecker (johnlonganecker@gmail.com)\n";
