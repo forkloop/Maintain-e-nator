@@ -1,21 +1,26 @@
 package com.herokuapp.maintainenator;
 
 import android.animation.Animator;
+import android.animation.Animator.AnimatorListener;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
-import android.animation.Animator.AnimatorListener;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 
 public class MainActivity extends Activity implements OnClickListener{
+
+    private static final String PREFS_FILE = "maintainenator";
+    private static final String TAG = "MainActivity";
 
     private static final long SLIDE_DURATION = 600;
     private Button settingsButton;
@@ -30,10 +35,14 @@ public class MainActivity extends Activity implements OnClickListener{
     private ValueAnimator slideBottomAnimator;
     private ValueAnimator slideRight2Animator;
 
+    private SharedPreferences sharedPreference;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        sharedPreference = getSharedPreferences(PREFS_FILE, MODE_PRIVATE);
 
         /* Retrieve the window size. */
         windowSize = new Point();
@@ -61,12 +70,12 @@ public class MainActivity extends Activity implements OnClickListener{
         animatorSet.play(slideBottomAnimator).with(slideTopAnimator).with(slideRight2Animator);
 
         TextView welcomeView = (TextView) findViewById(R.id.welcome);
-        Intent intent = getIntent();
-        if (intent != null) {
-            String name = (String) intent.getCharSequenceExtra("name");
-            if (name != null) {
-                welcomeView.setText(getString(R.string.welcome) + ", " + name);
-            }
+
+        /* Check whether user logged in or not. */
+        String submitter = sharedPreference.getString("submitter", "");
+        Log.d(TAG, "submitter: " + submitter);
+        if (!submitter.isEmpty()) {
+            welcomeView.setText(getString(R.string.welcome) + ", " + submitter);
         }
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
     }

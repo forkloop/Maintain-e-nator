@@ -57,6 +57,7 @@ import android.widget.Toast;
 public class FormActivity extends Activity implements LocationListener {
 
     private static final String GOOGLE_PLACE_API = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?radius=100&types=establishment&sensor=true&key=AIzaSyCL6FCIh_lcj9RPY-TZ6O08acGrffJvbq8&location=";
+    private static final String PREFS_FILE = "maintainenator";
 
     private static final String END = "\r\n";
     private static final String BOUNDARY = "1q2w3e4r5t";
@@ -87,9 +88,14 @@ public class FormActivity extends Activity implements LocationListener {
     //Audio
     private ExtAudioRecorder extAudioRecorder;
 
+    // Fetch submitter info.
+    private SharedPreferences sharedPreference;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        sharedPreference = getSharedPreferences(PREFS_FILE, MODE_PRIVATE);
 
         currentActivity = this;
         actionBar = getActionBar();
@@ -535,6 +541,23 @@ public class FormActivity extends Activity implements LocationListener {
         return photoAlertDialog;
     }
 
+    private String generateSubmitterInfo() {
+        String submitter = sharedPreference.getString("submitter", "");
+        if (submitter.isEmpty()) {
+            return null;
+        } else {
+            StringBuilder sb = new StringBuilder();
+            String subEmail = sharedPreference.getString("sub_email", "");
+            sb.append(TWO_HYPHENS + BOUNDARY + END);
+            sb.append("Content-Disposition: form-data; name=\"submitter\"" + END + END + submitter + END);
+            if (!subEmail.isEmpty()) {
+                sb.append(TWO_HYPHENS + BOUNDARY + END);
+                sb.append("Content-Disposition: form-data; name=\"sub_email\"" + END + END + subEmail + END);
+            }
+            return sb.toString();
+        }
+    }
+
     class UploadMultipartTask extends AsyncTask<String, Integer, String> {
 
         private ProgressDialog progressDialog;
@@ -586,6 +609,11 @@ public class FormActivity extends Activity implements LocationListener {
                     requestBodyFirstPart = indoorFormFragment.generateMultipartForm();
                 } else {
                     requestBodyFirstPart = outdoorFormFragment.generateMultipartForm();
+                }
+                // Generate submitter info based on whether user logged or not.
+                String submitterInfo = generateSubmitterInfo();
+                if (submitterInfo != null) {
+                    requestBodyFirstPart += submitterInfo;
                 }
                 urlConnection.connect();
                 DataOutputStream out = new DataOutputStream(urlConnection.getOutputStream());

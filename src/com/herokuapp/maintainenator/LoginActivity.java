@@ -22,6 +22,7 @@ import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -32,16 +33,23 @@ import android.widget.Toast;
 
 public class LoginActivity extends Activity implements OnClickListener{
 
+    private static final String PREFS_FILE = "maintainenator";
+    private static final String TAG = "LoginActivity";
+
     private static final String AUTH_TOKEN_TYPE = "oauth2:https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile";
     private AccountManager accountManager;
     private Account account;
 
     private AnimatorSet animatorSet;
 
+    private SharedPreferences.Editor editor;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        editor = getSharedPreferences(PREFS_FILE, MODE_PRIVATE).edit();
 
         final Button loginButton = (Button) findViewById(R.id.login_button);
         loginButton.setOnClickListener(this);
@@ -84,8 +92,12 @@ public class LoginActivity extends Activity implements OnClickListener{
                     String name = loginTask.get();
                     if (name != null) {
                         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                        intent.putExtra("name", name);
-                        intent.putExtra("email", account.name);
+                        /* Write the name and email into shared preference. */
+                        Log.d(TAG, name);
+                        editor.putString("submitter", name);
+                        editor.putString("sub_email", account.name);
+                        editor.commit();
+
                         startActivity(intent);
                         finish();
                     }
@@ -105,6 +117,9 @@ public class LoginActivity extends Activity implements OnClickListener{
             accountManager.getAuthToken(account, AUTH_TOKEN_TYPE, options, this, new OnTokenAcquired(), null);
         } else if (v.getId() == R.id.nothank_button) {
             startActivity(new Intent(this, MainActivity.class));
+            /* Write the name and email into shared preference. */
+            editor.putString("submitter", "");
+            editor.commit();
             //Make MainActivity as the bottom activity of activity stack.
             finish();
         }

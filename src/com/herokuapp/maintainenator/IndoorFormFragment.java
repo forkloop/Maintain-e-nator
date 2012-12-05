@@ -329,7 +329,7 @@ public class IndoorFormFragment extends Fragment implements OnItemSelectedListen
                 db.close();
                 Log.d(TAG, "Add indoor report to database " + indoorReport);
             } else {
-                Toast.makeText(getActivity(), "Missing info.", Toast.LENGTH_LONG).show();
+                Toast.makeText(getActivity(), "Missing info.", Toast.LENGTH_SHORT).show();
             }
         }
     }

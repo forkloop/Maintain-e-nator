@@ -219,7 +219,7 @@ public class OutdoorFormFragment extends Fragment implements OnLongClickListener
                 Log.d(TAG, latestLocation.getLatitude() + ", " + latestLocation.getLongitude());
                 startActivityForResult(intent, MAP_REQUEST_CODE);
             } else {
-                Toast.makeText(getActivity(), "Can't acquire current location.", Toast.LENGTH_LONG).show();
+                Toast.makeText(getActivity(), "Can't acquire current location.", Toast.LENGTH_SHORT).show();
             }
         } else if (vid == R.id.outdoor_submit) {
             if (checkData()) {
@@ -233,7 +233,7 @@ public class OutdoorFormFragment extends Fragment implements OnLongClickListener
                 db.close();
                 Log.d(getClass().getSimpleName(), "Add outdoor report to database " + outdoorReport);
             } else {
-                Toast.makeText(getActivity(), "Please fill in.", Toast.LENGTH_LONG).show();
+                Toast.makeText(getActivity(), "Missing info.", Toast.LENGTH_SHORT).show();
             }
         }
     }
