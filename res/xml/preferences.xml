@@ -16,4 +16,9 @@
         android:summary="@string/password_description"
         android:inputType="textPassword"
         android:defaultValue="" />
+    <CheckBoxPreference
+        android:key="save_history"
+        android:title="@string/save_history"
+        android:summary="@string/save_history_description"
+        android:defaultValue="true" />
 </PreferenceScreen>
