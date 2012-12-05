@@ -62,9 +62,9 @@ public class MainActivity extends Activity implements OnClickListener{
         reportButton.setOnClickListener(this);
         slideRightAnimator = ObjectAnimator.ofFloat(reportButton, "x", windowSize.x);
 
-        Button devButton = (Button) findViewById(R.id.view_button);
-        devButton.setOnClickListener(this);
-        slideRight2Animator = ObjectAnimator.ofFloat(devButton, "x", windowSize.x);
+        Button aboutButton = (Button) findViewById(R.id.about_button);
+        aboutButton.setOnClickListener(this);
+        slideRight2Animator = ObjectAnimator.ofFloat(aboutButton, "x", windowSize.x);
 
         animatorSet.play(slideBottomAnimator).with(slideRightAnimator);
         animatorSet.play(slideBottomAnimator).with(slideTopAnimator).with(slideRight2Animator);
@@ -83,11 +83,11 @@ public class MainActivity extends Activity implements OnClickListener{
     @Override
     public void onClick(View v) {
         int viewId = v.getId();
-        if (viewId != R.id.view_button) {
+        //if (viewId != R.id.about_button) {
             animatorSet.addListener(new ClickAnimatorListener(viewId, this));
             animatorSet.setDuration(SLIDE_DURATION);
             animatorSet.start();
-        }
+        //}
         /*
         if (viewId == R.id.settings_button) {
             Intent intent = new Intent(this, SettingsActivity.class);
@@ -125,6 +125,8 @@ public class MainActivity extends Activity implements OnClickListener{
                 startActivity(new Intent(activity, FormActivity.class));
             } else if (vid == R.id.my_reports_button) {
                 startActivity(new Intent(activity, ReportActivity.class));
+            } else if (vid == R.id.about_button) {
+                startActivity(new Intent(activity, AboutActivity.class));
             }
         }
 

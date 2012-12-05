@@ -225,6 +225,7 @@ public class OutdoorFormFragment extends Fragment implements OnLongClickListener
             if (checkData()) {
                 photoAudioArray[3] = audioFilePath;
                 ((FormActivity) getActivity()).new UploadMultipartTask().execute(photoAudioArray);
+                //FIXME What if uploading failed ?
                 DatabaseHandler db = new DatabaseHandler(((FormActivity) getActivity()).getApplicationContext());
                 History outdoorReport = new History (descriptionText.getText().toString(), locationText.getText().toString());
                 outdoorReport.setPhotosPath(joinPhotoPath());

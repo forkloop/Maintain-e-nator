@@ -24,7 +24,7 @@
     <string name="create_button_text">Create</string>
     <string name="my_reports_button_text">My Reports</string>
     <string name="settings_button_text">Settings</string>
-    <string name="view_button_text">Dev</string>
+    <string name="about_button_text">About</string>
     <string name="title_activity_display_create_form">Create a Tracking</string>
 
     <string name="settings">Settings</string>
@@ -60,4 +60,5 @@
     <string name="detail_report_delete">DELETE</string>
     <string name="audio_record">Record an audio message</string>
     <string name="record">Hold to Speak</string>
+    <string name="about_info">About</string>
 </resources>
