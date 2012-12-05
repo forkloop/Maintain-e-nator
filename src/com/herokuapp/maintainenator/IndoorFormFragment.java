@@ -285,13 +285,15 @@ public class IndoorFormFragment extends Fragment implements OnItemSelectedListen
                         }
                     });
                 }
-                try {
-                    mediaPlayer.setDataSource(audioFilePath);
-                    mediaPlayer.prepare();
-                    mediaPlayer.start();
-                } catch (IOException ioe) {
-                    ioe.printStackTrace();
-                    Log.d(TAG, ioe.getMessage());
+                if (!mediaPlayer.isPlaying()) {
+                    try {
+                        mediaPlayer.setDataSource(audioFilePath);
+                        mediaPlayer.prepare();
+                        mediaPlayer.start();
+                    } catch (IOException ioe) {
+                        ioe.printStackTrace();
+                        Log.d(TAG, ioe.getMessage());
+                    }
                 }
             }
         }

@@ -34,6 +34,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.media.MediaPlayer;
+import android.media.MediaPlayer.OnCompletionListener;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -665,6 +666,14 @@ public class FormActivity extends Activity implements LocationListener {
         public void onClick(View v) {
             if (mediaPlayer == null) {
                 mediaPlayer = new MediaPlayer();
+                mediaPlayer.setOnCompletionListener(new OnCompletionListener() {
+                    @Override
+                    public void onCompletion(MediaPlayer mp) {
+                        mp.reset();
+                    }
+                });
+            }
+            if (!mediaPlayer.isPlaying()) {
                 try {
                     mediaPlayer.setDataSource(audioFile);
                     mediaPlayer.prepare();
@@ -672,9 +681,6 @@ public class FormActivity extends Activity implements LocationListener {
                 } catch (IOException ioe) {
                     Log.d(TAG, ioe.getMessage());
                 }
-            } else {
-                mediaPlayer.release();
-                mediaPlayer = null;
             }
         }
     }
