@@ -299,6 +299,22 @@ public class IndoorFormFragment extends Fragment implements OnItemSelectedListen
         }
     }
 
+    void addReport() {
+        DatabaseHandler db = new DatabaseHandler(((FormActivity) getActivity()).getApplicationContext());
+        String location = buildingSpinner.getSelectedItem().toString() + ", " + floorSpinner.getSelectedItem().toString() + ", " + roomText.getText().toString();
+        String extraLocationString = extraLocation.getText().toString();
+        if (!extraLocationString.isEmpty()) {
+            location += (", " + extraLocationString);
+        }
+        String description = descriptionText.getText().toString();
+        History indoorReport = new History(description, location);
+        indoorReport.setPhotosPath(joinPhotoPath());
+        indoorReport.setAudioPath(audioFilePath);
+        db.addReport(indoorReport);
+        db.close();
+        Log.d(TAG, "Add indoor report to database " + indoorReport);
+    }
+
     private class IndoorSubmitClickListener implements OnClickListener {
         /*
          * Include description, building, floor, room.
@@ -321,6 +337,7 @@ public class IndoorFormFragment extends Fragment implements OnItemSelectedListen
             if (checkData()) {
                 photoAudioArray[3] = audioFilePath;
                 ((FormActivity) getActivity()).new UploadMultipartTask().execute(photoAudioArray);
+/*
                 DatabaseHandler db = new DatabaseHandler(((FormActivity) getActivity()).getApplicationContext());
                 String location = buildingSpinner.getSelectedItem().toString() + ", " + floorSpinner.getSelectedItem().toString() + ", " + roomText.getText().toString();
                 String extraLocationString = extraLocation.getText().toString();
@@ -334,6 +351,7 @@ public class IndoorFormFragment extends Fragment implements OnItemSelectedListen
                 db.addReport(indoorReport);
                 db.close();
                 Log.d(TAG, "Add indoor report to database " + indoorReport);
+*/
             } else {
                 Toast.makeText(getActivity(), "Missing info.", Toast.LENGTH_SHORT).show();
             }

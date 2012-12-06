@@ -207,6 +207,16 @@ public class OutdoorFormFragment extends Fragment implements OnLongClickListener
         }
     }
 
+    void addReport() {
+        DatabaseHandler db = new DatabaseHandler(((FormActivity) getActivity()).getApplicationContext());
+        History outdoorReport = new History (descriptionText.getText().toString(), locationText.getText().toString());
+        outdoorReport.setPhotosPath(joinPhotoPath());
+        outdoorReport.setAudioPath(audioFilePath);
+        db.addReport(outdoorReport);
+        db.close();
+        Log.d(getClass().getSimpleName(), "Add outdoor report to database " + outdoorReport);
+    }
+
     @Override
     public void onClick(View v) {
         int vid = v.getId();
@@ -225,7 +235,7 @@ public class OutdoorFormFragment extends Fragment implements OnLongClickListener
             if (checkData()) {
                 photoAudioArray[3] = audioFilePath;
                 ((FormActivity) getActivity()).new UploadMultipartTask().execute(photoAudioArray);
-                //FIXME What if uploading failed ?
+                /*
                 DatabaseHandler db = new DatabaseHandler(((FormActivity) getActivity()).getApplicationContext());
                 History outdoorReport = new History (descriptionText.getText().toString(), locationText.getText().toString());
                 outdoorReport.setPhotosPath(joinPhotoPath());
@@ -233,6 +243,7 @@ public class OutdoorFormFragment extends Fragment implements OnLongClickListener
                 db.addReport(outdoorReport);
                 db.close();
                 Log.d(getClass().getSimpleName(), "Add outdoor report to database " + outdoorReport);
+                */
             } else {
                 Toast.makeText(getActivity(), "Missing info.", Toast.LENGTH_SHORT).show();
             }
