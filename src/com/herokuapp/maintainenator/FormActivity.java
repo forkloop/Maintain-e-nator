@@ -130,10 +130,6 @@ public class FormActivity extends Activity implements LocationListener {
     public void onBackPressed() {
     }
 
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-    }
-
     @Override
     protected void onStart() {
         super.onStart();
@@ -152,30 +148,25 @@ public class FormActivity extends Activity implements LocationListener {
         Log.d(TAG, "username: " + username);
         password = sharedPreferences.getString("password", "");
         /* This is ONLY related to the configurations of `Location access` settings. Regardless of whether you have network access or not.
-          * NOTE that network localization will suppress GPS localization.
-          * If WIFI/mobile data is turned on, it will use WIFI/mobile data instead of GPS?
-          */
-        if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
-            Log.d(TAG, "Requesting single location update from network provider.");
-            locationManager.requestSingleUpdate(LocationManager.NETWORK_PROVIDER, this, null);
-        }
-        if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-            Log.d(TAG, "Requesting single location update from gps provider.");
-            locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, this, null);
-        }
-    }
-
-    @Override
-    protected void onPause() {
-        Log.d(TAG, "onPause");
-        super.onPause();
+         * NOTE that network localization will suppress GPS localization.
+         * If WIFI/mobile data is turned on, it will use WIFI/mobile data instead of GPS?
+         *
+         * Sometimes, NETWORK_PROVIDER stops working, rebooting the device should work.
+         */
+       if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+           Log.d(TAG, "Requesting single location update from network provider.");
+           locationManager.requestSingleUpdate(LocationManager.NETWORK_PROVIDER, this, null);
+       }
+       if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+           Log.d(TAG, "Requesting single location update from gps provider.");
+           locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, this, null);
+       }
     }
 
     @Override
     protected void onStop() {
         Log.d(TAG, "onStop");
         networkDisconnectedToast = true;
-        //TODO need this?
         locationManager.removeUpdates(this);
         super.onStop();
     }
@@ -560,6 +551,7 @@ public class FormActivity extends Activity implements LocationListener {
 
     class UploadMultipartTask extends AsyncTask<String, Integer, String> {
 
+        private static final String TAG = "FormActivity$UploadMultipartTask";
         private ProgressDialog progressDialog;
 
         @Override
@@ -622,8 +614,8 @@ public class FormActivity extends Activity implements LocationListener {
                 // photos
                 int num = 0;
                 for (int i=0; i<3; i++) {
-                    Log.d(TAG, "Uploading photo...");
                     if (params[i] != null) {
+                        Log.d(TAG, "Uploading photo...");
                         num++;
                         out.writeBytes(TWO_HYPHENS + BOUNDARY + END);
                         File photo = new File(params[i]);
@@ -661,7 +653,7 @@ public class FormActivity extends Activity implements LocationListener {
                 out.close();
                 Log.d(getClass().getSimpleName(), "Finish uploading...");
                 int responseCode = urlConnection.getResponseCode();
-                Log.d(getClass().getSimpleName(), "" + responseCode);
+                Log.d(TAG, "" + urlConnection.getResponseMessage());
                 if (responseCode == HttpURLConnection.HTTP_CREATED) {
                     return "201";
                 } else if (responseCode== HttpURLConnection.HTTP_OK) {
