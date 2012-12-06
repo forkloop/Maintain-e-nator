@@ -29,7 +29,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true"
-                android:textColor="#FFF38585"
+                android:textColor="#FF5400"
                 android:textSize="18sp" >
             </TextView>
         </RelativeLayout>
@@ -39,7 +39,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:textColor="#FF2CE4A4"
+            android:textColor="#232B60"
             android:textSize="16sp" >
         </TextView>
     </LinearLayout>

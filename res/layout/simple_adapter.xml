@@ -9,7 +9,7 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:divider="@null"
-        android:dividerHeight="0dip" />
+        android:divider="#707070"
+        android:dividerHeight="1px" />
 
 </LinearLayout>
