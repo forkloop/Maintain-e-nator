@@ -8,7 +8,6 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
@@ -21,7 +20,6 @@ import android.widget.SimpleAdapter;
 import android.widget.SimpleAdapter.ViewBinder;
 
 public class ReportActivity extends Activity implements OnItemClickListener {
-    private static final String PHOTO_PATH_SEPARATOR = "##";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -65,16 +63,17 @@ public class ReportActivity extends Activity implements OnItemClickListener {
 
         for(History h : values) {
             map = new HashMap<String, Object>();
-            String photosPath = h.getPhotosPath();
-            String path = null;
-            if (photosPath != null && !photosPath.isEmpty()) {
-                String[] photos = photosPath.split(PHOTO_PATH_SEPARATOR);
-                path = photos[0];
-                Log.d(getClass().getSimpleName(), path);
+            if(h.getLocation().contains("Davis")) {
+                map.put("photoIcon", R.drawable.davis);
+            }else if(h.getLocation().contains("Furnas")) {
+                map.put("photoIcon", R.drawable.furnas);
+            } else if(h.getLocation().contains("Jarvis")) {
+                map.put("photoIcon", R.drawable.jarvis);
+            } else if(h.getLocation().contains("Ketter")) {
+                map.put("photoIcon", R.drawable.ketter);
+            } else {
+                map.put("photoIcon", R.drawable.outdoors);
             }
-            Bitmap bmp = BitmapFactory.decodeFile(path);
-            Bitmap photo = Bitmap.createScaledBitmap(bmp, 120, 80, true);
-            map.put("photoIcon", photo);
             map.put("description", h.getDescription());
             map.put("location", h.getLocation());
             listData.add(map);
