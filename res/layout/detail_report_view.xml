@@ -16,14 +16,15 @@
     android:textStyle="bold"
     android:background="#FFBB33"
     android:textColor="#FFFFFF"
+    android:layout_marginTop="20dp"
     android:gravity="center_vertical|center_horizontal"
     />
 
 <TextView
     android:id="@+id/detail_report_location"
-    android:layout_height="40dp"
+    android:layout_height="48dp"
     android:layout_width="match_parent"
-    android:layout_marginTop="10dp"
+    android:layout_marginTop="20dp"
     android:textSize="16sp"
     android:background="#99CC00"
     android:textColor="#FFFFFF"
@@ -50,13 +51,13 @@
     android:id="@+id/detail_report_audio"
     android:layout_height="60dp"
     android:layout_width="match_parent"
-    android:layout_marginTop="10dp"
+    android:layout_marginTop="20dp"
     android:background="#33B5E5"
     android:src="@drawable/audio_record_icon"
     android:contentDescription="@string/audio_record"
     android:layout_below="@id/detail_report_photos"
     />
-
+<!--
 <Button
     android:id="@+id/detail_report_delete"
     android:layout_height="48dp"
@@ -68,4 +69,5 @@
     android:background="#FF4444"
     android:gravity="center_horizontal|center_vertical"
     />
+-->
 </RelativeLayout>
