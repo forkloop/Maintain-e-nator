@@ -62,6 +62,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                     history.setDate(cursor.getString(0));
                     history.setDescription(cursor.getString(1));
                     history.setLocation(cursor.getString(2));
+                    history.setPhotosPath(cursor.getString(3));
                     reportList.add(history);
                 } while (cursor.moveToNext());
             }
