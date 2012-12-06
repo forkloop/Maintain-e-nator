@@ -25,11 +25,11 @@
         android:layout_marginTop="260dp"
         android:layout_gravity="center_horizontal"
         android:padding="10dp"
-        android:background="@drawable/blue_round_button"
+        android:background="@drawable/login_button"
         android:alpha="1"
         android:textSize="18sp"
         android:textStyle="bold"
-        android:textColor="#FFFFFF"
+        android:textColor="#562002"
     />
 
     <Button
@@ -40,11 +40,11 @@
         android:layout_marginTop="20dp"
         android:layout_gravity="center_horizontal"
         android:padding="10dp"
-        android:background="@drawable/green_round_button"
+        android:background="@drawable/not_login_button"
         android:alpha="1"
         android:textSize="18sp"
         android:textStyle="bold"
-        android:textColor="#FFFFFF"
+        android:textColor="#562002"
     />
 
 </LinearLayout>
