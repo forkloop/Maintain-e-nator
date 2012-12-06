@@ -320,8 +320,8 @@ public class IndoorFormFragment extends Fragment implements OnItemSelectedListen
                 photoAudioArray[3] = audioFilePath;
                 ((FormActivity) getActivity()).new UploadMultipartTask().execute(photoAudioArray);
                 DatabaseHandler db = new DatabaseHandler(((FormActivity) getActivity()).getApplicationContext());
-                String location = buildingSpinner.getSelectedItem().toString() + ", " + floorSpinner.getSelectedItem().toString() + ", " + roomText.getText().toString();
-                String description = descriptionText.getText().toString() + ", " + extraLocation.getText().toString();;
+                String location = buildingSpinner.getSelectedItem().toString() + "/" + floorSpinner.getSelectedItem().toString() + "/" + roomText.getText().toString();
+                String description = descriptionText.getText().toString() + " " + extraLocation.getText().toString();
                 History indoorReport = new History(description, location);
                 indoorReport.setPhotosPath(joinPhotoPath());
                 indoorReport.setAudioPath(audioFilePath);
