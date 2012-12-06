@@ -9,6 +9,7 @@ import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.location.Location;
 import android.media.MediaPlayer;
 import android.os.Bundle;
@@ -207,6 +208,16 @@ public class OutdoorFormFragment extends Fragment implements OnLongClickListener
         }
     }
 
+    void addReport() {
+        DatabaseHandler db = new DatabaseHandler(((FormActivity) getActivity()).getApplicationContext());
+        History outdoorReport = new History (descriptionText.getText().toString(), locationText.getText().toString());
+        outdoorReport.setPhotosPath(joinPhotoPath());
+        outdoorReport.setAudioPath(audioFilePath);
+        db.addReport(outdoorReport);
+        db.close();
+        Log.d(getClass().getSimpleName(), "Add outdoor report to database " + outdoorReport);
+    }
+
     @Override
     public void onClick(View v) {
         int vid = v.getId();
@@ -225,7 +236,7 @@ public class OutdoorFormFragment extends Fragment implements OnLongClickListener
             if (checkData()) {
                 photoAudioArray[3] = audioFilePath;
                 ((FormActivity) getActivity()).new UploadMultipartTask().execute(photoAudioArray);
-                //FIXME What if uploading failed ?
+                /*
                 DatabaseHandler db = new DatabaseHandler(((FormActivity) getActivity()).getApplicationContext());
                 History outdoorReport = new History (descriptionText.getText().toString(), locationText.getText().toString());
                 outdoorReport.setPhotosPath(joinPhotoPath());
@@ -233,6 +244,7 @@ public class OutdoorFormFragment extends Fragment implements OnLongClickListener
                 db.addReport(outdoorReport);
                 db.close();
                 Log.d(getClass().getSimpleName(), "Add outdoor report to database " + outdoorReport);
+                */
             } else {
                 Toast.makeText(getActivity(), "Missing info.", Toast.LENGTH_SHORT).show();
             }
@@ -244,6 +256,7 @@ public class OutdoorFormFragment extends Fragment implements OnLongClickListener
         public boolean onTouch(View v, MotionEvent event) {
             int action = event.getAction();
             if (action == MotionEvent.ACTION_DOWN) {
+                recordButton.setBackgroundColor(Color.parseColor("#FF4444"));
                 Log.d(TAG, "Start recording...");
                 Date date = new Date();
                 audioFilePath = AUDIO_DIR + "audio-" + DATE_FORMAT.format(date) + ".wav";
@@ -252,6 +265,7 @@ public class OutdoorFormFragment extends Fragment implements OnLongClickListener
                 extAudioRecorder.prepare();
                 extAudioRecorder.start();
             } else if (action == MotionEvent.ACTION_UP) {
+                recordButton.setBackgroundColor(Color.parseColor("#FF8800"));
                 Log.d(TAG, "Stop recording...");
                 extAudioRecorder.stop();
                 sendAudioFile = true;

@@ -563,6 +563,12 @@ public class FormActivity extends Activity implements LocationListener {
         protected void onPostExecute(String result) {
             progressDialog.dismiss();
             if (result.equals("201")) {
+                //ONLY add the report to history when uploaded successfully.
+                if (actionBar.getSelectedTab().getTag().equals("indoor")) {
+                    indoorFormFragment.addReport();
+                } else {
+                    outdoorFormFragment.addReport();
+                }
                 Toast.makeText(getApplicationContext(), "Upload successfully.", Toast.LENGTH_LONG).show();
                 startActivity(new Intent(getApplicationContext(), ReportActivity.class));
             } else if (result.equals("301")){

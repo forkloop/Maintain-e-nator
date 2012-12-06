@@ -10,6 +10,7 @@ import java.util.List;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.DialogInterface;
+import android.graphics.Color;
 import android.location.Location;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
@@ -251,6 +252,7 @@ public class IndoorFormFragment extends Fragment implements OnItemSelectedListen
         public boolean onTouch(View v, MotionEvent event) {
             int action = event.getAction();
             if (action == MotionEvent.ACTION_DOWN) {
+                recordButton.setBackgroundColor(Color.parseColor("#FF4444"));
                 Log.d(TAG, "Start recording...");
                 Date date = new Date();
                 audioFilePath = AUDIO_DIR + "audio-" + DATE_FORMAT.format(date) + ".wav";
@@ -259,6 +261,7 @@ public class IndoorFormFragment extends Fragment implements OnItemSelectedListen
                 extAudioRecorder.prepare();
                 extAudioRecorder.start();
             } else if (action == MotionEvent.ACTION_UP) {
+                recordButton.setBackgroundColor(Color.parseColor("#FF8800"));
                 Log.d(TAG, "Stop recording...");
                 extAudioRecorder.stop();
                 sendAudioFile = true;
@@ -299,6 +302,22 @@ public class IndoorFormFragment extends Fragment implements OnItemSelectedListen
         }
     }
 
+    void addReport() {
+        DatabaseHandler db = new DatabaseHandler(((FormActivity) getActivity()).getApplicationContext());
+        String location = buildingSpinner.getSelectedItem().toString() + ", " + floorSpinner.getSelectedItem().toString() + ", " + roomText.getText().toString();
+        String extraLocationString = extraLocation.getText().toString();
+        if (!extraLocationString.isEmpty()) {
+            location += (", " + extraLocationString);
+        }
+        String description = descriptionText.getText().toString();
+        History indoorReport = new History(description, location);
+        indoorReport.setPhotosPath(joinPhotoPath());
+        indoorReport.setAudioPath(audioFilePath);
+        db.addReport(indoorReport);
+        db.close();
+        Log.d(TAG, "Add indoor report to database " + indoorReport);
+    }
+
     private class IndoorSubmitClickListener implements OnClickListener {
         /*
          * Include description, building, floor, room.
@@ -320,7 +339,8 @@ public class IndoorFormFragment extends Fragment implements OnItemSelectedListen
         public void onClick(View v) {
             if (checkData()) {
                 photoAudioArray[3] = audioFilePath;
-                //((FormActivity) getActivity()).new UploadMultipartTask().execute(photoAudioArray);
+                ((FormActivity) getActivity()).new UploadMultipartTask().execute(photoAudioArray);
+/*
                 DatabaseHandler db = new DatabaseHandler(((FormActivity) getActivity()).getApplicationContext());
                 String location = buildingSpinner.getSelectedItem().toString() + ", " + floorSpinner.getSelectedItem().toString() + ", " + roomText.getText().toString();
                 String extraLocationString = extraLocation.getText().toString();
@@ -334,6 +354,7 @@ public class IndoorFormFragment extends Fragment implements OnItemSelectedListen
                 db.addReport(indoorReport);
                 db.close();
                 Log.d(TAG, "Add indoor report to database " + indoorReport);
+*/
             } else {
                 Toast.makeText(getActivity(), "Missing info.", Toast.LENGTH_SHORT).show();
             }
