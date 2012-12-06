@@ -9,6 +9,7 @@ import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.location.Location;
 import android.media.MediaPlayer;
 import android.os.Bundle;
@@ -255,6 +256,7 @@ public class OutdoorFormFragment extends Fragment implements OnLongClickListener
         public boolean onTouch(View v, MotionEvent event) {
             int action = event.getAction();
             if (action == MotionEvent.ACTION_DOWN) {
+                recordButton.setBackgroundColor(Color.parseColor("#FF4444"));
                 Log.d(TAG, "Start recording...");
                 Date date = new Date();
                 audioFilePath = AUDIO_DIR + "audio-" + DATE_FORMAT.format(date) + ".wav";
@@ -263,6 +265,7 @@ public class OutdoorFormFragment extends Fragment implements OnLongClickListener
                 extAudioRecorder.prepare();
                 extAudioRecorder.start();
             } else if (action == MotionEvent.ACTION_UP) {
+                recordButton.setBackgroundColor(Color.parseColor("#FF8800"));
                 Log.d(TAG, "Stop recording...");
                 extAudioRecorder.stop();
                 sendAudioFile = true;

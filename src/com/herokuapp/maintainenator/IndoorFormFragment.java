@@ -10,6 +10,7 @@ import java.util.List;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.DialogInterface;
+import android.graphics.Color;
 import android.location.Location;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
@@ -251,6 +252,7 @@ public class IndoorFormFragment extends Fragment implements OnItemSelectedListen
         public boolean onTouch(View v, MotionEvent event) {
             int action = event.getAction();
             if (action == MotionEvent.ACTION_DOWN) {
+                recordButton.setBackgroundColor(Color.parseColor("#FF4444"));
                 Log.d(TAG, "Start recording...");
                 Date date = new Date();
                 audioFilePath = AUDIO_DIR + "audio-" + DATE_FORMAT.format(date) + ".wav";
@@ -259,6 +261,7 @@ public class IndoorFormFragment extends Fragment implements OnItemSelectedListen
                 extAudioRecorder.prepare();
                 extAudioRecorder.start();
             } else if (action == MotionEvent.ACTION_UP) {
+                recordButton.setBackgroundColor(Color.parseColor("#FF8800"));
                 Log.d(TAG, "Stop recording...");
                 extAudioRecorder.stop();
                 sendAudioFile = true;
